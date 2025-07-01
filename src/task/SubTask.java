@@ -1,5 +1,12 @@
+package task;
+
 public class SubTask extends Task {
+
     private int epicId;
+
+    public int getEpicId() {
+        return epicId;
+    }
 
     public SubTask(int id, String name, String description, int epicId) {
         super(id, name, description);
@@ -17,3 +24,4 @@ public class SubTask extends Task {
                 '}';
     }
 }
+
