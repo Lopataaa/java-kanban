@@ -1,10 +1,14 @@
-package Main;
+/* Ярослав, привет! Замечания учла. Единственное - TaskStatus оставила на прежнем месте.
+Поскольку при переносе в TaskManager не удалось победить ошибку
+java: enum TaskStatus is public, should be declared in a file named TaskStatus.java
+ */
 
-import manager.TaskStatus;
+import task.Epic; 
 import manager.TaskManager;
+import manager.TaskStatus;
 import task.SubTask;
 import task.Task;
-import task.Epic;
+
 
 public class Main {
 
@@ -60,3 +64,5 @@ public class Main {
         System.out.println("Эпики после удаления: " + taskManager.getEpics());
     }
 }
+
+

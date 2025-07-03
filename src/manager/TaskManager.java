@@ -6,6 +6,7 @@ import task.Epic;
 
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.List;
 
 public class TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
@@ -24,8 +25,9 @@ public class TaskManager {
         return new ArrayList<>(epics.values());
     }
 
-    public void addTask(Task task) {
+    public int addTask(Task task) {
         tasks.put(task.getId(), task);
+        return task.getId();
     }
 
     public void updateEpicStatus(Epic epic) {
@@ -67,14 +69,14 @@ public class TaskManager {
         tasks.clear();
     }
 
-    public boolean updateTask(Task updateTask) {
+    public Task updateTask(Task updateTask) {
         if (updateTask == null) {
-            return false;
+            return null;
         }
         tasks.put(updateTask.getId(), updateTask);
-        return true;
-
+        return updateTask;
     }
+
 
     public Task findTaskById(int id) {
         return tasks.get(id);
@@ -125,5 +127,21 @@ public class TaskManager {
     public Epic findEpicById(int id) {
         return epics.get(id);
     }
+
+    public List<SubTask> getSubTasksByEpicId(int epicId) {
+        Epic epic = epics.get(epicId);
+        if (epic == null) {
+            return new ArrayList<>(); // или вернуть null, если предпочитать такую реализацию
+        }
+        List<SubTask> subTasksList = new ArrayList<>();
+        for (int subTaskId : epic.getSubTaskIds()) {
+            SubTask subTask = subTasks.get(subTaskId);
+            if (subTask != null) {
+                subTasksList.add(subTask);
+            }
+        }
+        return subTasksList;
+    }
+
 }
 
