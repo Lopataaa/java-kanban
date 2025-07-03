@@ -3,7 +3,7 @@
 java: enum TaskStatus is public, should be declared in a file named TaskStatus.java
  */
 
-import task.Epic; 
+import task.Epic;
 import manager.TaskManager;
 import manager.TaskStatus;
 import task.SubTask;

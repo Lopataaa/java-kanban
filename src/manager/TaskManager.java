@@ -131,7 +131,7 @@ public class TaskManager {
     public List<SubTask> getSubTasksByEpicId(int epicId) {
         Epic epic = epics.get(epicId);
         if (epic == null) {
-            return new ArrayList<>(); // или вернуть null, если предпочитать такую реализацию
+            return new ArrayList<>();
         }
         List<SubTask> subTasksList = new ArrayList<>();
         for (int subTaskId : epic.getSubTaskIds()) {
