@@ -1,13 +1,8 @@
-/* Ярослав, привет! Замечания учла. Единственное - TaskStatus оставила на прежнем месте.
-Поскольку при переносе в TaskManager не удалось победить ошибку
-java: enum TaskStatus is public, should be declared in a file named TaskStatus.java
- */
-
 import task.Epic;
-import manager.TaskManager;
 import manager.TaskStatus;
 import task.SubTask;
 import task.Task;
+import manager.InMemoryTaskManager;
 
 
 public class Main {
@@ -19,7 +14,7 @@ public class Main {
         TaskStatus status = TaskStatus.NEW;
         int statusInt = status.ordinal();
 
-        TaskManager taskManager = new TaskManager();
+        InMemoryTaskManager taskManager = new InMemoryTaskManager();
 
         SubTask subTask = new SubTask(newId++, description, name, statusInt);
         taskManager.addSubTask(subTask);
@@ -44,6 +39,11 @@ public class Main {
         SubTask subTask3 = new SubTask(newId, "Подзадача 3 для эпика 2", "Описание подзадачи 3", epic2.getId());
         taskManager.addSubTask(subTask3);
 
+        // Вызываем методы и проверяем историю просмотров
+        System.out.println("История просмотров после добавления задач:");
+        System.out.println(taskManager.getHistory()); /*метод getHistory для проверки истории просмотров
+        для всех типов задач: Task, SubTask, Epic*/
+
         System.out.println("Задачи: " + taskManager.getTasks());
         System.out.println("Эпики: " + taskManager.getEpics());
         System.out.println("Подзадачи: " + taskManager.getSubTasks());
@@ -64,5 +64,4 @@ public class Main {
         System.out.println("Эпики после удаления: " + taskManager.getEpics());
     }
 }
-
 
