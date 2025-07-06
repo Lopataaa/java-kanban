@@ -1,6 +1,6 @@
 package task;
 
-import  manager.TaskStatus;
+import manager.TaskStatus;
 
 import java.util.Objects;
 
@@ -20,12 +20,15 @@ public class Task {
     public void setStatus(TaskStatus status) {
         this.status = status;
     }
+
     public void setId(int id) {
         this.id = id;
     }
+
     public String getName() {
         return name;
     }
+
     public int getId() {
         return id;
     }
@@ -58,5 +61,9 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

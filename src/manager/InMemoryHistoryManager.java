@@ -24,14 +24,4 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    /* Удалить, этот метод дублирует метод addToHistory(Task task)
-    @Override
-    public void add(Task task) {
-        history.add(task); //просмотренные задачи должны добавляться в конец
-        //Если размер списка больше 10, по ТЗ необходимо удалить самый старый элемент — тот, который находится в начале списка
-        if (history.size() > 10) {
-            history.remove(0);
-        }
-    }*/
-
 }

@@ -33,8 +33,6 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
         return new ArrayList<>(epics.values());
     }
 
-    //private List<Task> tasks = new ArrayList<>();
-
     @Override
     public int addTask(Task task) {
         tasks.put(task.getId(), task);
@@ -42,7 +40,7 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     @Override
-    public void updateEpicStatus(Epic epic) { //если этот метод вспомогательный, то его не нужно было переносить из менеджера
+    public void updateEpicStatus(Epic epic) {
         if (epic == null) {
             return;
         }
@@ -91,12 +89,6 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
         return updateTask;
     }
 
-    /* надо удалить, тк обновила этот метод ниже
-    @Override
-    public Task findTaskById(int id) {
-        return tasks.get(id);
-    }*/
-
     @Override
     public void addSubTask(SubTask subTask) {
         subTasks.put(subTask.getId(), subTask);
@@ -121,12 +113,6 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
         return true;
     }
 
-    /* надо удалить, тк обновила этот метод ниже
-    @Override
-    public SubTask findSubTaskById(int id) {
-        return subTasks.get(id);
-    }*/
-
     @Override
     public void addEpic(Epic epic) {
         epics.put(epic.getId(), epic);
@@ -145,12 +131,6 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
         epics.put(updateEpic.getId(), updateEpic);
         return true;
     }
-
-    /* надо удалить, тк обновила этот метод ниже
-    @Override
-    public Epic findEpicById(int id) {
-        return epics.get(id);
-    }*/
 
     @Override
     public List<SubTask> getSubTasksByEpicId(int epicId) {
@@ -171,17 +151,6 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     // История просмотров задач
     private List<Task> history = new LinkedList<>(); //реализация поля для хранения истории просмотров
 
-    /* закомментировала, тк, вроде это есть в строках 20-23
-    @Override
-    public List<Task> getTasks() { // Просмотром будем считать вызов тех методов, которые получают задачу по идентификатору
-        return new ArrayList<>(tasks.values());
-    }*/
-
-    /* Далее обновление методов findTaskById(int id), findSubTaskById(int id), findEpicById(int id)
-    для добавления просмотренных задач в список
-     */
-
-    // Перенесла в класс InMemoryTaskManager, потом вернула
     @Override
     public List<Task> getHistory() { // реализация метода, который возвращает последние 10 просмотренных задач. Обяъявлен в TaskManager
         return new ArrayList<>(history);
@@ -213,17 +182,5 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
         }
         return epic;
     }
-
-    /* Перенесла в класс InMemoryTaskManager
-    // Обновление истории просмотров
-    private void addToHistory(Task task) { //метод добавляет задачу в список истории просмотров
-        history.add(task); //просмотренные задачи должны добавляться в конец
-
-        // Если размер списка больше 10, по ТЗ необходимо удалить самый старый элемент — тот, который находится в начале списка
-        if (history.size() > 10) {
-            history.remove(0);
-        }
-    }*/
-
 
 }
