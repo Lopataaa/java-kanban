@@ -18,7 +18,7 @@ class TaskTest {
         int newId = 1;
         Task task1 = new Task(newId, "Задача 1", "Описание задачи 1");
         Task task2 = new Task(newId, "Задача 2", "Описание задачи 2");
-        if (task1.id == task2.id) {
+        if (task1.getId() == task2.getId()) {
             assertEquals(task1, task2);
         }
     }
@@ -29,7 +29,7 @@ class TaskTest {
         Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1");
         SubTask subTask1 = new SubTask(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1", epic1.getId());
         SubTask subTask2 = new SubTask(newId, "Подзадача 2 для эпика 1", "Описание подзадачи 2", epic1.getId());
-        if (subTask1.id == subTask2.id) {
+        if (subTask1.getId() == subTask2.getId()) {
             assertEquals(subTask1, subTask2);
         }
     }
@@ -39,7 +39,7 @@ class TaskTest {
         int newId = 1;
         Epic epic1 = new Epic(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1");
         Epic epic2 = new Epic(newId, "Подзадача 2 для эпика 1", "Описание подзадачи 2");
-        if (epic1.id == epic2.id) {
+        if (epic1.getId() == epic2.getId()) {
             assertEquals(epic1, epic2);
         }
     }
@@ -99,7 +99,7 @@ class TaskTest {
             manager.addTask(task);
         }
 
-        ArrayList<Task> tasks = manager.getTasks(); // проверка на уникальность id
+        List<Task> tasks = manager.getTasks(); // проверка на уникальность id
         ArrayList<Integer> uniqueIds = new ArrayList<>();
 
         for (Task task : tasks) {

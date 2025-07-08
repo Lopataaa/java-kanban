@@ -5,10 +5,10 @@ import manager.TaskStatus;
 import java.util.Objects;
 
 public class Task {
-    protected int id;
-    protected String name;
-    protected String description;
-    protected TaskStatus status;
+    private int id;
+    private String name;
+    private String description;
+    private TaskStatus status;
 
     public Task(int id, String name, String description) {
         this.id = id;

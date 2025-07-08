@@ -1,3 +1,5 @@
+import manager.Managers;
+import manager.TaskManager;
 import task.Epic;
 import manager.TaskStatus;
 import task.SubTask;
@@ -14,7 +16,7 @@ public class Main {
         TaskStatus status = TaskStatus.NEW;
         int statusInt = status.ordinal();
 
-        InMemoryTaskManager taskManager = new InMemoryTaskManager();
+        TaskManager taskManager = Managers.getTaskManager();
 
         SubTask subTask = new SubTask(newId++, description, name, statusInt);
         taskManager.addSubTask(subTask);

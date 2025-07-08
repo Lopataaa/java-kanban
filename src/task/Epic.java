@@ -4,11 +4,10 @@ import java.util.*;
 
 public class Epic extends Task {
 
-    private ArrayList<Integer> subTaskIds;
+    private final ArrayList<Integer> subTaskIds = new ArrayList<>();
 
     public Epic(int id, String name, String description) {
         super(id, name, description);
-        this.subTaskIds = new ArrayList<>();
     }
 
     public ArrayList<Integer> getSubTaskIds() {
@@ -26,10 +25,10 @@ public class Epic extends Task {
     @Override
     public String toString() {
         return "Epic{" +
-                "id=" + id +
-                ", status=" + status +
-                ", description='" + description + '\'' +
-                ", name='" + name + '\'' +
+                "id=" + getId() +
+                ", status=" + getStatus() +
+                ", description='" + getDescription() + '\'' +
+                ", name='" + getName() + '\'' +
                 ", subtaskIds=" + subTaskIds +
                 '}';
     }

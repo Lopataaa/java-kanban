@@ -16,12 +16,11 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     // Обновление истории просмотров
     public void addToHistory(Task task) { //метод добавляет задачу в список истории просмотров
-        history.add(task); //просмотренные задачи должны добавляться в конец
-
         // Если размер списка больше 10, по ТЗ необходимо удалить самый старый элемент — тот, который находится в начале списка
         if (history.size() > 10) {
             history.remove(0);
         }
+        history.add(task); //просмотренные задачи должны добавляться в конец
     }
 
 }

@@ -19,7 +19,7 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     private HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
-    public ArrayList<Task> getTasks() {
+    public List<Task> getTasks() {
         return new ArrayList<>(tasks.values());
     }
 
@@ -149,7 +149,7 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     // История просмотров задач
-    private List<Task> history = new LinkedList<>(); //реализация поля для хранения истории просмотров
+    private List<Task> history = new LinkedList<>(); // объявила и инициализировала список для хранения объектов
 
     @Override
     public List<Task> getHistory() { // реализация метода, который возвращает последние 10 просмотренных задач. Обяъявлен в TaskManager
