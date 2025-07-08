@@ -148,12 +148,9 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
         return subTasksList;
     }
 
-    // История просмотров задач
-    private List<Task> history = new LinkedList<>(); // объявила и инициализировала список для хранения объектов
-
     @Override
-    public List<Task> getHistory() { // реализация метода, который возвращает последние 10 просмотренных задач. Обяъявлен в TaskManager
-        return new ArrayList<>(history);
+    public List<Task> getHistory() { // реализация метода, который возвращает последние 10 просмотренных задач. Объявлен в TaskManager
+        return historyManager.getHistory();
     }
 
     @Override
