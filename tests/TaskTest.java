@@ -1,11 +1,12 @@
-package task;
-
 import org.junit.jupiter.api.Test;
 import manager.Managers;
 import manager.HistoryManager;
 import manager.TaskManager;
 import manager.InMemoryTaskManager;
 import manager.InMemoryHistoryManager;
+import task.Epic;
+import task.SubTask;
+import task.Task;
 
 import java.util.ArrayList;
 import java.util.List;
