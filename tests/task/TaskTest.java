@@ -155,7 +155,7 @@ class TaskTest {
     }
 
     @Test
-    public void testOfAddingDeletingtOperations() {
+    public void testOfAddingDeleteOperations() {
         InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
         Task task1 = new Task(1, "Задача 1", "Описание задачи 1");

@@ -5,8 +5,6 @@ import task.Task;
 import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private HashMap<Integer, Task> historyMapId = new HashMap<>();
-    private LinkedList<Task> historyList = new LinkedList<>();
     private Map<Integer, Node> nodeMap = new HashMap<>();
     private Node head;
     private Node tail;
@@ -28,17 +26,11 @@ public class InMemoryHistoryManager implements HistoryManager {
         nodeMap.put(task.getId(), tail); // После добавления задачи не забудьте обновить значение узла в HashMap
     }
 
-
+    @Override
     public void remove(int id) {
-        Task task = getTaskId(id); // поиск задачи с определенным id
-        if (task != null) {
-            historyMapId.remove(id); // удаление заданной задачи из коллекций
-            historyList.remove(task);
-        }
-    }
-
-    public Task getTaskId(int id) {
-        return historyMapId.get(id);
+        Node nodeToRemove = nodeMap.get(id);
+        removeNode(nodeToRemove);
+        nodeMap.remove(id);
     }
 
     class Node {
