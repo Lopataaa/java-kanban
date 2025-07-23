@@ -6,7 +6,6 @@ import task.Epic;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.LinkedList;
 
 public class InMemoryTaskManager implements TaskManager { /* переименовала созданный ранее
 класс менеджер в InMemoryTaskManager, тем самым реализовала п.2 "не забыть имплементировать TaskManager,
@@ -157,7 +156,7 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     public Task findTaskById(int id) {
         Task task = tasks.get(id);
         if (task != null) {
-            historyManager.addToHistory(task);
+            historyManager.add(task);
         }
         return task;
     }
@@ -166,7 +165,7 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     public SubTask findSubTaskById(int id) {
         SubTask subTask = subTasks.get(id);
         if (subTask != null) {
-            historyManager.addToHistory((Task) subTask);
+            historyManager.add((Task) subTask);
         }
         return subTask;
     }
@@ -175,7 +174,7 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     public Epic findEpicById(int id) {
         Epic epic = epics.get(id);
         if (epic != null) {
-            historyManager.addToHistory((Task) epic);
+            historyManager.add((Task) epic);
         }
         return epic;
     }

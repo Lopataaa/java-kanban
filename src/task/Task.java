@@ -10,6 +10,10 @@ public class Task {
     private String description;
     private TaskStatus status;
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Task(int id, String name, String description) {
         this.id = id;
         this.name = name;
