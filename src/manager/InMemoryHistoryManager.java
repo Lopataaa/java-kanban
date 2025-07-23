@@ -38,7 +38,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     public Task getTaskId(int id) {
-        return  historyMapId.get(id);
+        return historyMapId.get(id);
     }
 
     class Node {

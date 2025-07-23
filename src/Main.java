@@ -7,7 +7,7 @@ import task.Task;
 
 public class Main {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         int newId = 1;
         String name = "Имя задачи";
         String description = "Описание задачи";
@@ -24,7 +24,7 @@ public class Main {
 
         Task task1 = new Task(newId, "Задача 1", "Описание задачи 1");
         taskManager.addTask(task1);
-        Task task2 = new Task(newId,"Задача 2", "Описание задачи 2");
+        Task task2 = new Task(newId, "Задача 2", "Описание задачи 2");
         taskManager.addTask(task2);
 
         Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1");

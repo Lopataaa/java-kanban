@@ -6,6 +6,7 @@ import manager.HistoryManager;
 import manager.TaskManager;
 import manager.InMemoryTaskManager;
 import manager.InMemoryHistoryManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,7 +96,7 @@ class TaskTest {
         manager.addTask(taskWithGivenId);
 
         for (int i = 0; i < 10; i++) {
-            Task task = new Task(i,"ID сгенерирован" + i, "Описание задачи " + i);
+            Task task = new Task(i, "ID сгенерирован" + i, "Описание задачи " + i);
             manager.addTask(task);
         }
 
