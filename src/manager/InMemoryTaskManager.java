@@ -40,6 +40,11 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     @Override
+    public void deleteTask(int id) {
+        tasks.remove(id);
+    }
+
+    @Override
     public void updateEpicStatus(Epic epic) {
         if (epic == null) {
             return;
@@ -90,13 +95,14 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     @Override
-    public void addSubTask(SubTask subTask) {
+    public int addSubTask(SubTask subTask) {
         subTasks.put(subTask.getId(), subTask);
 
         Epic epic = epics.get(subTask.getEpicId());
         if (epic != null) {
             epic.addSubTaskId(subTask.getId());
         }
+        return  subTask.getId();
     }
 
     @Override
@@ -105,12 +111,12 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     @Override
-    public boolean updateSubTask(SubTask updateSubTask) {
+    public int updateSubTask(SubTask updateSubTask) {
         if (updateSubTask == null) {
-            return false;
+            return -111;
         }
         subTasks.put(updateSubTask.getId(), updateSubTask);
-        return true;
+        return updateSubTask.getId();
     }
 
     @Override
@@ -119,17 +125,17 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     @Override
-    public void deleteEpic() {
-        epics.clear();
+    public void deleteEpic(int id) {
+        epics.remove(id);
     }
 
     @Override
-    public boolean updateEpic(Epic updateEpic) {
+    public int updateEpic(Epic updateEpic) {
         if (updateEpic == null) {
-            return false;
+            return -111;
         }
         epics.put(updateEpic.getId(), updateEpic);
-        return true;
+        return updateEpic.getId();
     }
 
     @Override

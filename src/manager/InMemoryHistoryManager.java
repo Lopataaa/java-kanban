@@ -5,9 +5,13 @@ import task.Task;
 import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private Map<Integer, Node> nodeMap = new HashMap<>();
-    private Node head;
+    final Map<Integer, Node> nodeMap = new HashMap<>();
+    private Node head; // оставила это поле private, т.к. после final всё посыпалось и эти ошибки исправить не удалось
     private Node tail;
+
+    public InMemoryHistoryManager() {
+        head = null;
+    }
 
     @Override
     public List<Task> getHistory() {
@@ -45,11 +49,11 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    public void linkLast(Task task) { // добавить задачу в конец списка
+    private void linkLast(Task task) { // добавить задачу в конец списка
         Node newNode = new Node(task);
-        if (head == null) {
-            head = newNode;
+        if (tail == null) {
             tail = newNode;
+            head = newNode;
         } else {
             tail.next = newNode;
             newNode.prev = tail;
@@ -58,8 +62,9 @@ public class InMemoryHistoryManager implements HistoryManager {
         nodeMap.put(task.getId(), newNode);
     }
 
-    public List<Task> getTasks() { // собирать все задачи из списка в обычный ArrayList
+    private List<Task> getTasks() { // собирать все задачи из списка в обычный ArrayList
         List<Task> tasks = new ArrayList<>();
+
         Node currentNode = head;
         while (currentNode != null) {
             tasks.add(currentNode.task);
@@ -68,7 +73,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         return tasks;
     }
 
-    public void removeNode(Node nodeToRemove) {
+    private void removeNode(Node nodeToRemove) {
         if (nodeToRemove == null) {
             return;
         }
@@ -76,7 +81,9 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (nodeToRemove.prev != null) {
             nodeToRemove.prev.next = nodeToRemove.next;
         } else {
-            head = nodeToRemove.next;
+            if (head == nodeToRemove.next) {
+                head = nodeToRemove.next;
+            }
         }
 
         if (nodeToRemove.next != null) {
