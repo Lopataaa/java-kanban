@@ -86,12 +86,12 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     @Override
-    public Task updateTask(Task updateTask) {
+    public int updateTask(Task updateTask) {
         if (updateTask == null) {
-            return null;
+            return -111;
         }
         tasks.put(updateTask.getId(), updateTask);
-        return updateTask;
+        return updateTask.getId();
     }
 
     @Override
@@ -120,8 +120,9 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     @Override
-    public void addEpic(Epic epic) {
+    public int addEpic(Epic epic) {
         epics.put(epic.getId(), epic);
+        return epic.getId();
     }
 
     @Override

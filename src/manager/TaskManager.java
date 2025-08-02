@@ -18,7 +18,7 @@ public interface TaskManager { //реализовала п.1
 
     void updateEpicStatus(Epic epic);
 
-    Task updateTask(Task updateTask);
+    int updateTask(Task updateTask);
 
     Task findTaskById(int id);
 
@@ -28,7 +28,7 @@ public interface TaskManager { //реализовала п.1
 
     SubTask findSubTaskById(int id);
 
-    void addEpic(Epic epic);
+    int addEpic(Epic epic);
 
     int updateEpic(Epic updateEpic);
 
