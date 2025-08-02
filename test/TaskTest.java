@@ -1,11 +1,13 @@
-package task;
-
 import org.junit.jupiter.api.Test;
 import manager.Managers;
 import manager.HistoryManager;
 import manager.TaskManager;
 import manager.InMemoryTaskManager;
 import manager.InMemoryHistoryManager;
+import task.Epic;
+import task.SubTask;
+import task.Task;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,7 +97,7 @@ class TaskTest {
         manager.addTask(taskWithGivenId);
 
         for (int i = 0; i < 10; i++) {
-            Task task = new Task(i,"ID сгенерирован" + i, "Описание задачи " + i);
+            Task task = new Task(i, "ID сгенерирован" + i, "Описание задачи " + i);
             manager.addTask(task);
         }
 
@@ -143,19 +145,94 @@ class TaskTest {
     @Test
     public void savingThePreviousIssueVersion() {
         InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        TaskManager taskManager = Managers.getDefault();
 
         Task task = new Task(1, "Задача 1", "Описание задачи 1"); // Создание задачи
 
-        taskManager.addTask(task); // Добавляем задачу в менеджер задач
-        historyManager.addToHistory(task); // Добавляем задачу в историю
-
-        task.setName("Задача 1");
-        taskManager.updateTask(task);
+        historyManager.add(task); // Добавляем задачу в историю
 
         List<Task> history = historyManager.getHistory(); //проверка предыдущей версии
         assertTrue(!history.isEmpty(), "История должна содержать хотя бы одну задачу");
-        Task previousTask = history.get(history.size() - 1);
-        assertEquals("Задача 1", previousTask.getName(), "Предыдущая версия задачи должна содержать исходное название");
+        assertEquals(task, history.get(history.size() - 1), "Добавленная задача последняя в истории");
     }
+
+    @Test
+    public void testOfAddingDeleteOperations() {
+        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+
+        Task task1 = new Task(1, "Задача 1", "Описание задачи 1");
+        Task task2 = new Task(2, "Задача 2", "Описание задачи 2");
+        Task task3 = new Task(3, "Задача 3", "Описание задачи 3");
+
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.add(task3);
+
+        List<Task> history = historyManager.getHistory();
+        assertEquals(3, history.size());
+        assertEquals(task1, history.get(0));
+        assertEquals(task2, history.get(1));
+        assertEquals(task3, history.get(2));
+
+        int taskId = task2.getId();
+
+        historyManager.remove(taskId);
+
+        history = historyManager.getHistory();
+        assertEquals(2, history.size());
+        assertEquals(task1, history.get(0));
+        assertEquals(task3, history.get(1));
+
+        historyManager.remove(10);
+    }
+
+    @Test
+    public void testWithoutStoringOldId() {
+        InMemoryTaskManager manager = new InMemoryTaskManager();
+        SubTask subTask = new SubTask(1, "Подзадача 1", "Описание подзадачи 1", 1);
+        manager.addSubTask(subTask);
+
+        assertTrue(manager.getSubTasks().contains(subTask));
+
+        manager.deleteSubTask();
+
+        assertEquals(0, manager.getSubTasks().size()); // Проверка после удаления
+    }
+
+    @Test
+    public void testWithoutIrrelevantSubtasksId() {
+        InMemoryTaskManager manager = new InMemoryTaskManager();
+        Epic epic = new Epic(1, "Эпик 1", "Описание эпика 1");
+        SubTask subTask = new SubTask(2, "Подзадача 1", "Описание подзадачи 1", 1);
+
+        manager.addEpic(epic);
+        manager.addSubTask(subTask);
+
+        List<SubTask> subTasksBeforeDeletion = manager.getSubTasksByEpicId(epic.getId());
+        assertTrue(subTasksBeforeDeletion.contains(subTask)); // добавлена ли подзадача в эпик
+
+        manager.deleteSubTask();
+
+        List<SubTask> subTasksAfterDeletion = manager.getSubTasksByEpicId(epic.getId());
+        assertFalse(subTasksAfterDeletion.contains(subTask)); // проверка удаленной подзадачи из эпика
+    }
+
+    @Test
+    public void testChangingTaskFields() {
+        InMemoryTaskManager manager = new InMemoryTaskManager();
+        Task task = new Task(1, "Задача 1", "Описание задачи 1");
+
+        manager.addTask(task);
+
+        assertEquals("Задача 1", task.getName());
+        assertEquals("Описание задачи 1", task.getDescription());
+
+        task.setName("Новое название"); // изменение полей
+        task.setDescription("Новое описание");
+
+        Task updatedTask = manager.findTaskById(task.getId());
+        assertNotNull(updatedTask);
+        assertEquals("Новое название", updatedTask.getName());
+        assertEquals("Новое описание", updatedTask.getDescription());
+    }
+
 }

@@ -3,10 +3,10 @@ package manager;
 import task.SubTask;
 import task.Task;
 import task.Epic;
+
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.LinkedList;
 
 public class InMemoryTaskManager implements TaskManager { /* переименовала созданный ранее
 класс менеджер в InMemoryTaskManager, тем самым реализовала п.2 "не забыть имплементировать TaskManager,
@@ -37,6 +37,11 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     public int addTask(Task task) {
         tasks.put(task.getId(), task);
         return task.getId();
+    }
+
+    @Override
+    public void deleteTask(int id) {
+        tasks.remove(id);
     }
 
     @Override
@@ -81,22 +86,23 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     @Override
-    public Task updateTask(Task updateTask) {
+    public int updateTask(Task updateTask) {
         if (updateTask == null) {
-            return null;
+            return -111;
         }
         tasks.put(updateTask.getId(), updateTask);
-        return updateTask;
+        return updateTask.getId();
     }
 
     @Override
-    public void addSubTask(SubTask subTask) {
+    public int addSubTask(SubTask subTask) {
         subTasks.put(subTask.getId(), subTask);
 
         Epic epic = epics.get(subTask.getEpicId());
         if (epic != null) {
             epic.addSubTaskId(subTask.getId());
         }
+        return  subTask.getId();
     }
 
     @Override
@@ -105,31 +111,32 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     @Override
-    public boolean updateSubTask(SubTask updateSubTask) {
+    public int updateSubTask(SubTask updateSubTask) {
         if (updateSubTask == null) {
-            return false;
+            return -111;
         }
         subTasks.put(updateSubTask.getId(), updateSubTask);
-        return true;
+        return updateSubTask.getId();
     }
 
     @Override
-    public void addEpic(Epic epic) {
+    public int addEpic(Epic epic) {
         epics.put(epic.getId(), epic);
+        return epic.getId();
     }
 
     @Override
-    public void deleteEpic() {
-        epics.clear();
+    public void deleteEpic(int id) {
+        epics.remove(id);
     }
 
     @Override
-    public boolean updateEpic(Epic updateEpic) {
+    public int updateEpic(Epic updateEpic) {
         if (updateEpic == null) {
-            return false;
+            return -111;
         }
         epics.put(updateEpic.getId(), updateEpic);
-        return true;
+        return updateEpic.getId();
     }
 
     @Override
@@ -157,7 +164,7 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     public Task findTaskById(int id) {
         Task task = tasks.get(id);
         if (task != null) {
-            historyManager.addToHistory(task);
+            historyManager.add(task);
         }
         return task;
     }
@@ -166,7 +173,7 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     public SubTask findSubTaskById(int id) {
         SubTask subTask = subTasks.get(id);
         if (subTask != null) {
-            historyManager.addToHistory((Task) subTask);
+            historyManager.add((Task) subTask);
         }
         return subTask;
     }
@@ -175,7 +182,7 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     public Epic findEpicById(int id) {
         Epic epic = epics.get(id);
         if (epic != null) {
-            historyManager.addToHistory((Task) epic);
+            historyManager.add((Task) epic);
         }
         return epic;
     }
