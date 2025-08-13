@@ -14,6 +14,8 @@ public interface TaskManager { //реализовала п.1
 
     List<Epic> getEpics();
 
+    void save();
+
     int addTask(Task task);
 
     void updateEpicStatus(Epic epic);

@@ -2,7 +2,12 @@ package manager;
 
 public class Managers {
     public static TaskManager getDefault() {
-        return new InMemoryTaskManager();
+        return new InMemoryTaskManager() {
+            @Override
+            public void save() {
+
+            }
+        };
     }
 
     public static HistoryManager getDefaultHistory() {
@@ -11,6 +16,11 @@ public class Managers {
     }
 
     public static TaskManager getTaskManager() {
-        return new InMemoryTaskManager();
+        return new InMemoryTaskManager() {
+            @Override
+            public void save() {
+
+            }
+        };
     }
 }

@@ -34,6 +34,10 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     @Override
+    public void save(){
+    }
+
+    @Override
     public int addTask(Task task) {
         tasks.put(task.getId(), task);
         return task.getId();

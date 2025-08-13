@@ -4,12 +4,17 @@ import manager.HistoryManager;
 import manager.TaskManager;
 import manager.InMemoryTaskManager;
 import manager.InMemoryHistoryManager;
+import manager.FileBackedTaskManager;
 import task.Epic;
 import task.SubTask;
 import task.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import java.io.File;
+import java.io.IOException;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -73,7 +78,13 @@ class TaskTest {
 
     @Test
     public void addAndFindTasks() {
-        InMemoryTaskManager manager = new InMemoryTaskManager();
+        InMemoryTaskManager manager;
+        manager = new InMemoryTaskManager() {
+            @Override
+            public void save() {
+
+            }
+        };
 
         Task task = new Task(1, "Задача 1", "Описание задачи 1");
         SubTask subTask = new SubTask(2, "Подзадача 1", "Описание подзадачи 1", 1);
@@ -91,7 +102,12 @@ class TaskTest {
 
     @Test
     public void taskDoNotConflict() {
-        InMemoryTaskManager manager = new InMemoryTaskManager();
+        InMemoryTaskManager manager = new InMemoryTaskManager() {
+            @Override
+            public void save() {
+
+            }
+        };
 
         Task taskWithGivenId = new Task(1, "ID задан", "Описание задачи");
         manager.addTask(taskWithGivenId);
@@ -235,4 +251,112 @@ class TaskTest {
         assertEquals("Новое описание", updatedTask.getDescription());
     }
 
+    @Test // Сохранение и загрузка пустого файла
+    public void testSaveAndLoadEmptyFile() {
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("test", ".txt");
+            tempFile.deleteOnExit(); //После завершения программы удалить файл
+
+            FileBackedTaskManager manager = new FileBackedTaskManager(tempFile.getAbsolutePath());
+            manager.save(); // Сохраняем пустой менеджер
+
+            FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
+            assertTrue(loadedManager.getTasks().isEmpty()); // Проверяем, что задач нет
+            assertTrue(loadedManager.getEpics().isEmpty()); // Проверяем, что эпиков нет
+            assertTrue(loadedManager.getSubTasks().isEmpty()); // Проверяем, что подзадач нет
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Произошла ошибка ввода-вывода: " + e.getMessage());
+        } finally {
+            if (tempFile != null) {
+                tempFile.delete();
+            }
+        }
+    }
+
+
+    @Test // Сохранение нескольких задач
+    public void testSaveMultipleTasks() {
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("test", ".txt");
+            tempFile.deleteOnExit(); //После завершения программы удалить файл
+
+            FileBackedTaskManager manager = new FileBackedTaskManager(tempFile.getAbsolutePath());
+
+            Task task1 = new Task(1, "Задача 1", "Описание задачи 1");
+            Epic epic1 = new Epic(2, "Эпик 1", "Описание эпика 1");
+            SubTask subTask1 = new SubTask(3, "Подзадача 1", "Описание подзадачи 1", epic1.getId());
+
+            manager.addTask(task1);
+            manager.addEpic(epic1);
+            manager.addSubTask(subTask1);
+
+            manager.save(); // Сохраняем менеджер с задачами
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Произошла ошибка ввода-вывода: " + e.getMessage());
+        } finally {
+            if (tempFile != null) {
+                tempFile.delete();
+            }
+        }
+    }
+
+
+    @Test // Загрузка нескольких задач
+    public void testLoadMultipleTasks() {
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("test", ".txt");
+            tempFile.deleteOnExit(); //После завершения программы удалить файл
+
+            FileBackedTaskManager manager = new FileBackedTaskManager(tempFile.getAbsolutePath());
+            Task task1 = new Task(1, "Задача 1", "Описание задачи 1");
+            Epic epic1 = new Epic(2, "Эпик 1", "Описание эпика 1");
+            SubTask subTask1 = new SubTask(3, "Подзадача 1", "Описание подзадачи 1", epic1.getId());
+
+            manager.addTask(task1);
+            manager.addEpic(epic1);
+            manager.addSubTask(subTask1);
+            manager.save();
+
+            FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
+
+            assertEquals(1, loadedManager.getTasks().size()); // Проверяем количество задач
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Произошла ошибка ввода-вывода: " + e.getMessage());
+        } finally {
+            if (tempFile != null) {
+                tempFile.delete();
+            }
+        }
+    }
+
+    @Test
+    public void testSaveAndLoadTasks() {
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("test", ".txt");
+            tempFile.deleteOnExit();
+
+            FileBackedTaskManager manager = new FileBackedTaskManager(tempFile.getAbsolutePath());
+            Task task1 = new Task(1, "Задача 1", "Описание задачи 1");
+            manager.addTask(task1);
+            manager.save();
+
+            FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
+
+            assertEquals(1, loadedManager.getTasks().size());
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Произошла ошибка ввода-вывода: " + e.getMessage());
+        } finally {
+            if (tempFile != null) {
+                tempFile.delete();
+            }
+        }
+    }
 }
