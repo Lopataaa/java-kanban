@@ -3,6 +3,7 @@ package manager;
 import task.SubTask;
 import task.Task;
 import task.Epic;
+import task.TaskStatus;
 
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -31,10 +32,6 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     @Override
     public ArrayList<Epic> getEpics() {
         return new ArrayList<>(epics.values());
-    }
-
-    @Override
-    public void save(){
     }
 
     @Override

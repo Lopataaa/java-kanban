@@ -6,11 +6,11 @@ import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
     final Map<Integer, Node> nodeMap = new HashMap<>();
-    private Node head; // оставила это поле private, т.к. после final всё посыпалось и эти ошибки исправить не удалось
+    private Node head = null; // оставила это поле private, т.к. после final всё посыпалось и эти ошибки исправить не удалось
     private Node tail;
 
     public InMemoryHistoryManager() {
-        head = null;
+
     }
 
     @Override

@@ -80,10 +80,7 @@ class TaskTest {
     public void addAndFindTasks() {
         InMemoryTaskManager manager;
         manager = new InMemoryTaskManager() {
-            @Override
-            public void save() {
 
-            }
         };
 
         Task task = new Task(1, "Задача 1", "Описание задачи 1");
@@ -103,10 +100,7 @@ class TaskTest {
     @Test
     public void taskDoNotConflict() {
         InMemoryTaskManager manager = new InMemoryTaskManager() {
-            @Override
-            public void save() {
 
-            }
         };
 
         Task taskWithGivenId = new Task(1, "ID задан", "Описание задачи");

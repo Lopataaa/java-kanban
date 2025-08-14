@@ -9,7 +9,7 @@ import task.SubTask;
 import task.Task;
 import task.Epic;
 
-public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
+public class FileBackedTaskManager extends InMemoryTaskManager {
     private String namefile;
 
     public FileBackedTaskManager(String namefile) {
@@ -17,8 +17,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         this.namefile = namefile;
     }
 
-
-    @Override
     public void save() {
         try (FileWriter writer = new FileWriter(namefile)) {
             writer.write("id,type,description,name,status,epic\n");
