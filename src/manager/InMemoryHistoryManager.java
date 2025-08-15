@@ -9,10 +9,6 @@ public class InMemoryHistoryManager implements HistoryManager {
     private Node head = null; // оставила это поле private, т.к. после final всё посыпалось и эти ошибки исправить не удалось
     private Node tail;
 
-    public InMemoryHistoryManager() {
-
-    }
-
     @Override
     public List<Task> getHistory() {
         return getTasks();
