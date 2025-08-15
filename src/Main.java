@@ -14,7 +14,7 @@ public class Main {
         TaskStatus status = TaskStatus.NEW;
         int statusInt = status.ordinal();
 
-        TaskManager taskManager = Managers.getTaskManager();
+        TaskManager taskManager = Managers.getDefault();
 
         SubTask subTask = new SubTask(newId++, description, name, statusInt);
         taskManager.addSubTask(subTask);

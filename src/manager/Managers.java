@@ -12,7 +12,4 @@ public class Managers {
         return new InMemoryHistoryManager();
     }
 
-    public static TaskManager getTaskManager() {
-        return new InMemoryTaskManager();
-    }
 }
