@@ -1,3 +1,5 @@
+package test;
+
 import org.junit.jupiter.api.Test;
 import manager.Managers;
 import manager.HistoryManager;
@@ -5,7 +7,6 @@ import manager.TaskManager;
 import manager.InMemoryTaskManager;
 import manager.InMemoryHistoryManager;
 import manager.FileBackedTaskManager;
-import manager.HistoryManager;
 import task.Epic;
 import task.SubTask;
 import task.Task;
@@ -24,7 +25,6 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import task.TaskStatus;
 
 class TaskTest {
