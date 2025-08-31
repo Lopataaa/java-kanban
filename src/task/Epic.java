@@ -16,7 +16,7 @@ public class Epic extends Task implements Serializable {
 
     public Epic(int id, String name, String description) {
         super(id, name, description);
-        this.status = TaskStatus.NEW;
+        //this.status = TaskStatus.NEW;
         this.duration = Duration.ZERO;
         this.startTime = null;
         this.endTime = null;
