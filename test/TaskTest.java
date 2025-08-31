@@ -474,8 +474,28 @@ class EpicStatusTest {
         subTasks.add(new SubTask(2, "Подзадача 2", "Описание подзадачи 2", 1));
 
         // Проверяем статус эпика
-        assertEquals("DONE", epic.getStatus());
+        assertEquals("DONE", epic.getStatus().toString());
     }
+
+    /*@Test
+    void testEpicStatus() {
+        Epic epicFromManager = manager.getEpic(epicId);
+
+        SubTask subtask4 = new SubTask(4, "СабТаска1", "СабТаска1_Тест", epicId);
+        SubTask subtask5 = new SubTask(5, "СабТаска2", "СабТаска2_Тест", epicId);
+        SubTask subtask6 = new SubTask(6, "СабТаска3", "СабТаска3_Тест", epicId);
+
+        manager.createSubTask(subtask4);
+        manager.createSubTask(subtask5);
+
+        subtask4.setDuration(Duration.ofHours(25));
+        subtask5.setDuration(Duration.ofHours(49));
+        subtask6.setStatus(TaskStatus.IN_PROGRESS);
+
+        manager.createSubTask(subtask6);
+
+        assertEquals("IN_PROGRESS", epicFromManager.getStatus().toString());
+    }*/
 
     @Test
     public void testMixedSubtasksStatuses() {
