@@ -9,7 +9,7 @@ public class Task {
     private int id;
     private String name;
     private String description;
-    private TaskStatus status;
+    public TaskStatus status;
     private TaskType getType;
     private String getName;
     private TaskStatus getStatus;

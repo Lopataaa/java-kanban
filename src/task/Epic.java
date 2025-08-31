@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class Epic extends Task implements Serializable {
 
     private final ArrayList<Integer> subTaskIds = new ArrayList<>();
-    private final TaskStatus status;
+
     private Duration duration;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
