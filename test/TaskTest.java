@@ -474,7 +474,7 @@ class EpicStatusTest {
         subTasks.add(new SubTask(2, "Подзадача 2", "Описание подзадачи 2", 1));
 
         // Проверяем статус эпика
-        assertEquals("DONE", epic.getStatus().toString());
+        assertEquals("DONE", epic.getStatus());
     }
 
     /*@Test
@@ -548,8 +548,7 @@ class EpicStatusTest {
         epic.addSubTaskId(subTask2.getId());
         epic.addSubTaskId(subTask3.getId());
 
-        // Устанавливаем статусы подзадач в эпике (предполагается, что у вас есть метод для этого)
-        epic.getSubTaskIds(Arrays.asList(subTask1, subTask2, subTask3));
+         epic.getSubTaskIds(Arrays.asList(subTask1, subTask2, subTask3));
 
         // Проверяем статус эпика
         assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus());
