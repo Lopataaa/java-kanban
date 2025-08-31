@@ -22,6 +22,24 @@ public class Epic extends Task implements Serializable {
         this.endTime = null;
     }
 
+    public void updateStatus() {
+        boolean allSubTasksCompleted = true;
+        for (Integer subTaskId : subTaskIds) {
+            Map<Integer, SubTask> subTasksMap = new HashMap<>();
+            SubTask subTask = subTasksMap.get(subTaskId);
+            if (subTask.getStatus() != TaskStatus.DONE) {
+                allSubTasksCompleted = false;
+                break;
+            }
+        }
+        if (allSubTasksCompleted) {
+            this.status = TaskStatus.DONE;
+        } else if (this.status == TaskStatus.NEW) {
+            this.status = TaskStatus.IN_PROGRESS;
+        }
+    }
+
+
     public ArrayList<Integer> getSubTaskIds() {
         return subTaskIds;
     }
