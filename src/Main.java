@@ -4,6 +4,8 @@ import task.Epic;
 import task.TaskStatus;
 import task.SubTask;
 import task.Task;
+import java.io.FileOutputStream; //Для сохранения объекта Epic в файл
+import java.io.ObjectOutputStream; //Для сохранения объекта Epic в файл
 
 public class Main {
 
@@ -22,12 +24,30 @@ public class Main {
         Epic epic = new Epic(newId++, description, name);
         taskManager.addEpic(epic);
 
+        try (FileOutputStream fileOut = new FileOutputStream("epic.ser");
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(epic);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1");
+        taskManager.addEpic(epic1);
+
+        // Нужно ли мне сохранение epic1 в файл?????
+        try (FileOutputStream fileOut = new FileOutputStream("epic1.ser");
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(epic1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Task task1 = new Task(newId, "Задача 1", "Описание задачи 1"); // создайте две задачи
         taskManager.addTask(task1);
         Task task2 = new Task(newId, "Задача 2", "Описание задачи 2");
         taskManager.addTask(task2);
 
-        Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1"); // эпик с тремя подзадачами
+        //Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1"); // эпик с тремя подзадачами
         taskManager.addEpic(epic1);
         SubTask subTask1 = new SubTask(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1", epic1.getId());
         taskManager.addSubTask(subTask1);

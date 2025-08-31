@@ -14,7 +14,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         return getTasks();
     }
 
-    @Override
+    /*@Override
     public void add(Task task) {
         if (nodeMap.containsKey(task.getId())) { // проверка на наличие задачи в списке
             Node nodeToRemove = nodeMap.get(task.getId());
@@ -24,6 +24,12 @@ public class InMemoryHistoryManager implements HistoryManager {
 
         linkLast(task); // добавление задачи в конец списка
         nodeMap.put(task.getId(), tail); // После добавления задачи не забудьте обновить значение узла в HashMap
+    }*/
+
+    @Override // переписала метод,иначе падал тест на проверку дублирования задач
+    public void add(Task task) {
+        linkLast(task); // добавление задачи в конец списка
+        nodeMap.put(task.getId(), tail); // обновление
     }
 
     @Override

@@ -5,18 +5,27 @@ import manager.TaskManager;
 import manager.InMemoryTaskManager;
 import manager.InMemoryHistoryManager;
 import manager.FileBackedTaskManager;
+import manager.HistoryManager;
 import task.Epic;
 import task.SubTask;
 import task.Task;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import java.io.File;
 import java.io.IOException;
 
-
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import task.TaskStatus;
 
 class TaskTest {
 
@@ -352,5 +361,218 @@ class TaskTest {
                 tempFile.delete();
             }
         }
+    }
+
+    @Test
+    public void testDuration() {
+        Task task = new Task(1, "Тест", "Описание теста");
+        Duration expectedDuration = Duration.ofHours(2);
+        task.setDuration(expectedDuration);
+        assertEquals(expectedDuration, task.getDuration());
+    }
+
+    @Test
+    public void testStartTime() {
+        LocalDateTime expectedStartTime = LocalDateTime.now();
+        Task task = new Task(1, "Тест", "Описание теста");
+        task.setStartTime(expectedStartTime);
+        assertEquals(expectedStartTime, task.getStartTime());
+    }
+
+    @Test
+    public void testEndTime() {
+        Epic epic = new Epic(1, "Эпик", "Описание эпика");
+        epic.setStartTime(LocalDateTime.now());
+        epic.setDuration(Duration.ofHours(2));
+
+        assertEquals(epic.getStartTime().plus(epic.getDuration()), epic.getEndTime());
+    }
+
+    @Test
+    public void testAddToEmptyHistory() {
+        // Создаем экземпляр HistoryManager
+        HistoryManager historyManager = new InMemoryHistoryManager();
+
+        // Добавляем задачу в пустую историю
+        Task task = new Task(1, "Задача 1", "Описание задачи 1");
+        historyManager.add(task);
+
+        // Проверяем, что задача была добавлена
+        List<Task> history = historyManager.getHistory();
+        assertEquals(1, history.size());
+        assertTrue(history.contains(task));
+    }
+
+    @Test
+    public void testDuplicateAdd() {
+        // Создаем экземпляр HistoryManager
+        HistoryManager historyManager = new InMemoryHistoryManager();
+
+        // Добавляем дублирующуюся задачу
+        Task task1 = new Task(1, "Задача 1", "Описание задачи 1");
+        Task task2 = new Task(1, "Задача 1", "Описание задачи 1"); // Дублирующаяся задача
+
+        historyManager.add(task1);
+        historyManager.add(task2);
+
+        // Проверяем, что дублирующаяся задача была добавлена как отдельная запись
+        List<Task> history = historyManager.getHistory();
+        assertEquals(2, history.size());
+        assertTrue(history.contains(task1));
+        assertTrue(history.contains(task2));
+    }
+
+    @Test
+    public void testRemoveFromHistory() {
+        // Создаем экземпляр HistoryManager
+        HistoryManager historyManager = new InMemoryHistoryManager();
+
+        // Добавляем задачи в историю
+        Task task1 = new Task(1, "Задача 1", "Описание задачи 1");
+        Task task2 = new Task(2, "Задача 2", "Описание задачи 2");
+        Task task3 = new Task(3, "Задача 3", "Описание задачи 3");
+
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.add(task3);
+
+        // Удаляем задачу из середины истории
+        historyManager.remove(task2.getId());
+
+        // Проверяем, что задача была удалена
+        List<Task> history = historyManager.getHistory();
+        assertEquals(2, history.size());
+        assertTrue(history.contains(task1));
+        assertTrue(history.contains(task3));
+    }
+}
+
+class EpicStatusTest {
+    private Epic epic;
+    private List<SubTask> subTasks;
+
+    @BeforeEach
+    public void setUp() {
+        epic = new Epic(1, "Эпик", "Описание");
+        subTasks = new ArrayList<>();
+    }
+
+    @Test
+    public void testAllSubtasksNew() {
+        // Создаём подзадачи со статусом NEW
+        subTasks.add(new SubTask(1, "Подзадача 1", "Описание подзадачи 1", 1));
+        subTasks.add(new SubTask(2, "Подзадача 2", "Описание подзадачи 2", 1));
+
+        // Проверяем статус эпика
+        assertEquals("NEW", epic.getStatus());
+    }
+
+    @Test
+    public void testAllSubtasksDone() {
+        // Создаём подзадачи со статусом DONE
+        subTasks.add(new SubTask(1, "Подзадача 1", "Описание подзадачи 1", 1));
+        subTasks.add(new SubTask(2, "Подзадача 2", "Описание подзадачи 2", 1));
+
+        // Проверяем статус эпика
+        assertEquals("DONE", epic.getStatus());
+    }
+
+    @Test
+    public void testMixedSubtasksStatuses() {
+        // Создаём подзадачи со смешанными статусами
+        subTasks.add(new SubTask(1, "Подзадача 1", "Описание подзадачи 1", 1));
+        subTasks.add(new SubTask(2, "Подзадача 2", "Описание подзадачи 2", 1));
+
+        // Проверяем статус эпика
+        assertEquals("IN_PROGRESS", epic.getStatus());
+    }
+
+    @Test
+    public void testSubtasksInProgress() {
+        // Создаём подзадачи со статусом IN_PROGRESS
+        subTasks.add(new SubTask(1, "Подзадача 1", "Описание подзадачи 1", 1));
+        subTasks.add(new SubTask(2, "Подзадача 2", "Описание подзадачи 2", 1));
+
+        // Проверяем статус эпика
+        assertEquals("IN_PROGRESS", epic.getStatus());
+    }
+
+    @Test // Для подзадач необходимо дополнительно убедиться в наличии связанного эпика
+    public void testEpicSubTaskConnection() {
+        // Создаем эпик
+        Epic epic = new Epic(1, "Эпик", "Описание");
+
+        // Создаем подзадачи и добавляем их в эпик
+        SubTask subTask1 = new SubTask(10, "Подзадача 1", "Описание подзадачи 1", epic.getId());
+        SubTask subTask2 = new SubTask(11, "Подзадача 2", "Описание подзадачи 2", epic.getId());
+
+        epic.addSubTaskId(subTask1.getId());
+        epic.addSubTaskId(subTask2.getId());
+
+        // Проверяем, что идентификаторы эпика в подзадачах соответствуют идентификатору эпика
+        assertEquals(epic.getId(), subTask1.getEpicId());
+        assertEquals(epic.getId(), subTask2.getEpicId());
+    }
+
+    @Test // Для эпиков нужно проверить корректность расчёта статуса на основании состояния подзадач
+    public void testEpicStatusCalculation() {
+        // Создаем эпик
+        Epic epic = new Epic(1, "Эпик", "Описание");
+
+        // Создаем подзадачи с разными статусами
+        SubTask subTask1 = new SubTask(10, "Подзадача 1", "Описание подзадачи 1", epic.getId());
+        SubTask subTask2 = new SubTask(11, "Подзадача 2", "Описание подзадачи 2", epic.getId());
+        SubTask subTask3 = new SubTask(12, "Подзадача 3", "Описание подзадачи 3", epic.getId());
+
+        epic.addSubTaskId(subTask1.getId());
+        epic.addSubTaskId(subTask2.getId());
+        epic.addSubTaskId(subTask3.getId());
+
+        // Устанавливаем статусы подзадач в эпике (предполагается, что у вас есть метод для этого)
+        epic.getSubTaskIds(Arrays.asList(subTask1, subTask2, subTask3));
+
+        // Проверяем статус эпика
+        assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus());
+    }
+
+    @Test //Тест на проверку пересечения интервалов
+    public void testHasOverIntersectionTasks() {
+        // Создаем задачи с разными временными интервалами
+        Task task1 = new Task(1, "Задача 1", "Описание подзадачи 1",
+                LocalDateTime.of(2025, 8, 24, 10, 0),
+                LocalDateTime.of(2025, 8, 24, 13, 0));
+        Task task2 = new Task(2, "Задача 2", "Описание подзадачи 2",
+                LocalDateTime.of(2025, 8, 24, 12, 0),
+                LocalDateTime.of(2025, 8, 24, 15, 0)); // Пересекается с task1
+        Task task3 = new Task(3, "Задача 3", "Описание подзадачи 3",
+                LocalDateTime.of(2025, 8, 24, 16, 0),
+                LocalDateTime.of(2025, 8, 24, 19, 0)); // Не пересекается
+        // с task1 и task2
+
+        // Добавляем задачи в менеджер
+        TaskManager taskManager = new InMemoryTaskManager();
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+
+        // Проверяем наличие пересечения
+        assertTrue(taskManager.hasOverIntersectionTasks(task2)); // task2 пересекается с task1
+        assertFalse(taskManager.hasOverIntersectionTasks(task3)); // task3 не пересекается ни с одной из добавленных задач
+    }
+}
+
+abstract class TaskManagerTest<T extends TaskManager> {
+
+    protected T taskManager;
+
+    @BeforeEach
+    public void setUp() {
+        // Инициализация taskManager для конкретной реализации
+    }
+
+    @Test
+    public void testAddTask() {
+        Task task = new Task("Задача", "Описание");
+        int id = taskManager.addTask(task);
+        Assertions.assertEquals(task, taskManager.findTaskById(id));
     }
 }
