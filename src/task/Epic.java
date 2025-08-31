@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.io.Serializable;
 
 public class Epic extends Task implements Serializable {
 
@@ -22,11 +21,12 @@ public class Epic extends Task implements Serializable {
         this.endTime = null;
     }
 
-    public void updateStatus(Map<Integer, SubTask> subTasksMap) {
+    public void updateStatus() {
         boolean allSubTasksCompleted = true;
         for (Integer subTaskId : subTaskIds) {
+            Map<Integer, SubTask> subTasksMap = new HashMap<>();
             SubTask subTask = subTasksMap.get(subTaskId);
-            if (subTask != null && subTask.getStatus() != TaskStatus.DONE) {
+            if (subTask.getStatus() != TaskStatus.DONE) {
                 allSubTasksCompleted = false;
                 break;
             }
@@ -37,7 +37,6 @@ public class Epic extends Task implements Serializable {
             this.status = TaskStatus.IN_PROGRESS;
         }
     }
-
 
 
     public ArrayList<Integer> getSubTaskIds() {
@@ -91,17 +90,17 @@ public class Epic extends Task implements Serializable {
 
     @Override
     public String toString() {
-    return "Epic{" +
-            "id=" + getId() +
-            ", status=" + getStatus() +
-            ", description='" + getDescription() + '\'' +
-            ", name='" + getName() + '\'' +
-            ", subtaskIds=" + subTaskIds +
-            ", duration=" + duration +
-            ", startTime=" + startTime +
-            ", endTime=" + endTime +
-            '}';
-}
+        return "Epic{" +
+                "id=" + getId() +
+                ", status=" + getStatus() +
+                ", description='" + getDescription() + '\'' +
+                ", name='" + getName() + '\'' +
+                ", subtaskIds=" + subTaskIds +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                '}';
+    }
 
     public <T> void getSubTaskIds(List<T> list) {
     }

@@ -103,7 +103,7 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
         if (epic != null) {
             epic.addSubTaskId(subTask.getId());
         }
-        return  subTask.getId();
+        return subTask.getId();
     }
 
     @Override
@@ -157,7 +157,8 @@ public class InMemoryTaskManager implements TaskManager { /* переимено�
     }
 
     @Override
-    public List<Task> getHistory() { // реализация метода, который возвращает последние 10 просмотренных задач. Объявлен в TaskManager
+    public List<Task> getHistory() { // реализация метода, который возвращает последние 10 просмотренных задач.
+        // Объявлен в TaskManager
         return historyManager.getHistory();
     }
 

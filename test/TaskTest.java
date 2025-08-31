@@ -43,8 +43,10 @@ class TaskTest {
     public void idEqualsForSubTaskClasses() {
         int newId = 1;
         Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1");
-        SubTask subTask1 = new SubTask(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1", epic1.getId());
-        SubTask subTask2 = new SubTask(newId, "Подзадача 2 для эпика 1", "Описание подзадачи 2", epic1.getId());
+        SubTask subTask1 = new SubTask(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1",
+                epic1.getId());
+        SubTask subTask2 = new SubTask(newId, "Подзадача 2 для эпика 1", "Описание подзадачи 2",
+                epic1.getId());
         if (subTask1.getId() == subTask2.getId()) {
             assertEquals(subTask1, subTask2);
         }
@@ -64,7 +66,8 @@ class TaskTest {
     public void subTaskCannotBeEpic() {
         int newId = 1;
         Epic epic = new Epic(newId, "Эпик 1", "Описание эпика 1");
-        SubTask subTask = new SubTask(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1", epic.getId());
+        SubTask subTask = new SubTask(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1",
+                epic.getId());
         assertNotEquals(epic.getClass(), subTask.getClass(), "SubTask не должен быть экземпляром Epic");
     }
 
@@ -72,7 +75,8 @@ class TaskTest {
     public void epicCannotBeSubTask() {
         int newId = 1;
         Epic epic = new Epic(newId, "Эпик 1", "Описание эпика 1");
-        SubTask subTask = new SubTask(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1", epic.getId());
+        SubTask subTask = new SubTask(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1",
+                epic.getId());
         assertNotEquals(subTask.getClass(), epic.getClass(), "объект Subtask нельзя сделать своим же эпиком");
     }
 
@@ -548,7 +552,7 @@ class EpicStatusTest {
         epic.addSubTaskId(subTask2.getId());
         epic.addSubTaskId(subTask3.getId());
 
-         epic.getSubTaskIds(Arrays.asList(subTask1, subTask2, subTask3));
+        epic.getSubTaskIds(Arrays.asList(subTask1, subTask2, subTask3));
 
         // Проверяем статус эпика
         assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus());
@@ -557,14 +561,14 @@ class EpicStatusTest {
     @Test //Тест на проверку пересечения интервалов
     public void testHasOverIntersectionTasks() {
         // Создаем задачи с разными временными интервалами
-        Task task1 = new Task(1, "Задача 1", "Описание подзадачи 1",
-                LocalDateTime.of(2025, 8, 24, 10, 0),
+        Task task1 = new Task(1, "Задача 1", "Описание подзадачи 1", LocalDateTime.of
+                (2025, 8, 24, 10, 0),
                 LocalDateTime.of(2025, 8, 24, 13, 0));
-        Task task2 = new Task(2, "Задача 2", "Описание подзадачи 2",
-                LocalDateTime.of(2025, 8, 24, 12, 0),
+        Task task2 = new Task(2, "Задача 2", "Описание подзадачи 2", LocalDateTime.of
+                (2025, 8, 24, 12, 0),
                 LocalDateTime.of(2025, 8, 24, 15, 0)); // Пересекается с task1
-        Task task3 = new Task(3, "Задача 3", "Описание подзадачи 3",
-                LocalDateTime.of(2025, 8, 24, 16, 0),
+        Task task3 = new Task(3, "Задача 3", "Описание подзадачи 3", LocalDateTime.of
+                (2025, 8, 24, 16, 0),
                 LocalDateTime.of(2025, 8, 24, 19, 0)); // Не пересекается
         // с task1 и task2
 
@@ -575,7 +579,8 @@ class EpicStatusTest {
 
         // Проверяем наличие пересечения
         assertTrue(taskManager.hasOverIntersectionTasks(task2)); // task2 пересекается с task1
-        assertFalse(taskManager.hasOverIntersectionTasks(task3)); // task3 не пересекается ни с одной из добавленных задач
+        assertFalse(taskManager.hasOverIntersectionTasks(task3)); // task3 не пересекается ни с одной из
+        // добавленных задач
     }
 }
 

@@ -6,25 +6,14 @@ import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
     final Map<Integer, Node> nodeMap = new HashMap<>();
-    private Node head = null; // оставила это поле private, т.к. после final всё посыпалось и эти ошибки исправить не удалось
+    private Node head = null; // оставила это поле private, т.к. после final всё посыпалось и эти ошибки
+    // исправить не удалось
     private Node tail;
 
     @Override
     public List<Task> getHistory() {
         return getTasks();
     }
-
-    /*@Override
-    public void add(Task task) {
-        if (nodeMap.containsKey(task.getId())) { // проверка на наличие задачи в списке
-            Node nodeToRemove = nodeMap.get(task.getId());
-            removeNode(nodeToRemove); // удаление из списка
-            nodeMap.remove(task.getId()); // удаление из HashMap
-        }
-
-        linkLast(task); // добавление задачи в конец списка
-        nodeMap.put(task.getId(), tail); // После добавления задачи не забудьте обновить значение узла в HashMap
-    }*/
 
     @Override // переписала метод,иначе падал тест на проверку дублирования задач
     public void add(Task task) {

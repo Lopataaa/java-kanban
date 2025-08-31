@@ -23,9 +23,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             writer.write("id,type,description,name,status,epic\n");
 
             for (Task task : getTasks()) {
-                writer.write(String.format("%d,%s,%s,%s,%s,%d\n",
-                        task.getId(), task.getType(), task.getDescription(), task.getName(), task.getStatus(),
-                        task.getEpic()));
+                writer.write(String.format("%d,%s,%s,%s,%s,%d\n", task.getId(), task.getType(), task.getDescription(), task.getName(), task.getStatus(), task.getEpic()));
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при сохранении данных в файл", e);

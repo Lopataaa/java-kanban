@@ -61,7 +61,8 @@ public interface TaskManager { //реализовала п.1
     }
 
     public default boolean isOverIntersection(Task task1, Task task2) {
-        return !(task1.getEndTime().isBefore(task2.getStartTime()) || task2.getEndTime().isBefore(task1.getStartTime()));
+        return !(task1.getEndTime().isBefore(task2.getStartTime()) ||
+                task2.getEndTime().isBefore(task1.getStartTime()));
     }
 
     // Метод для проверки пересечения новой задачи с существующими
