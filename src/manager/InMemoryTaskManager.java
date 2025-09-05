@@ -16,25 +16,16 @@ public class InMemoryTaskManager implements TaskManager {
      * ведь в Java класс должен явно заявить, что он подходит под требования интерфейса"
      */
 
-    // Хранилища
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, SubTask> subTasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
 
-    // История
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     // Приоритезированный набор задач и подзадач по startTime
-    private final NavigableSet<Task> prioritized =
-            new TreeSet<>((a, b) -> {
-                LocalDateTime sa = a.getStartTime();
-                LocalDateTime sb = b.getStartTime();
-                if (sa == null && sb == null) return Integer.compare(a.getId(), b.getId());
-                if (sa == null) return 1;    // nullы — в конец
-                if (sb == null) return -1;
-                int cmp = sa.compareTo(sb);
-                return (cmp != 0) ? cmp : Integer.compare(a.getId(), b.getId());
-            });
+    private final NavigableSet<Task> prioritizedTask = new TreeSet<>(Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()))
+            .thenComparingInt(Task::getId));
+
 
     @Override
     public List<Task> getTasks() {
@@ -53,7 +44,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (updateTask == null) {
             throw new IllegalArgumentException("Task must not be null");
         }
-        // убрать старый экземпляр из prioritized (если был)
         removeFromPrioritized(tasks.get(updateTask.getId()));
         tasks.put(updateTask.getId(), updateTask);
         upsertPrioritized(updateTask);
@@ -112,7 +102,7 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks.values().forEach(this::removeFromPrioritized);
         subTasks.clear();
 
-        // очистить связи у эпиков и пересчитать агрегаты
+        // очистить связи у эпиков
         for (Epic e : epics.values()) {
             e.getSubTaskIds().clear();
             refreshEpic(e);
@@ -163,7 +153,6 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.remove(id);
         if (epic == null) return;
 
-        // по желанию: удалить связанные сабтаски целиком
         for (Integer sid : new ArrayList<>(epic.getSubTaskIds())) {
             SubTask st = subTasks.remove(sid);
             removeFromPrioritized(st);
@@ -198,8 +187,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Set<Task> getPrioritizedTasks() {
-        // отдаём немодифицируемую копию/вид
-        return Collections.unmodifiableSet(new LinkedHashSet<>(prioritized));
+        return Collections.unmodifiableSet(new LinkedHashSet<>(prioritizedTask));
     }
 
     @Override
@@ -218,16 +206,13 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public boolean hasOverIntersectionTasks(Task newTask) {
         if (newTask == null) return false;
-        for (Task existing : prioritized) {
+        for (Task existing : prioritizedTask) {
             if (existing.getId() == newTask.getId()) continue;
             if (isOverIntersection(newTask, existing)) return true;
         }
         return false;
     }
 
-    /**
-     * Пересчёт агрегатов эпика: статус, duration, startTime, endTime
-     */
     private void refreshEpic(Epic epic) {
         if (epic == null) return;
 
@@ -238,7 +223,6 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setDuration(null);
             epic.setStartTime(null);
             epic.setEndTime(null);
-            // Эпики НЕ участвуют в prioritized, но если участвуют — убери/добавь логику
             return;
         }
 
@@ -270,11 +254,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void upsertPrioritized(Task t) {
         if (t == null) return;
-        prioritized.remove(t);   // безопасно: по equals/hashCode (по id)
-        prioritized.add(t);
+        prioritizedTask.remove(t);   // безопасно: по equals/hashCode (по id)
+        prioritizedTask.add(t);
     }
 
     private void removeFromPrioritized(Task t) {
-        if (t != null) prioritized.remove(t);
+        if (t != null) prioritizedTask.remove(t);
     }
 }

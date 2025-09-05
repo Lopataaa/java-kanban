@@ -160,22 +160,22 @@ class EpicTest {
     void epicStatus_inProgress_whenAnySubtaskInProgress_andDurationsLong() {
         TaskManager manager = new InMemoryTaskManager();
 
-        Epic epic = new Epic(1, "Эпик", "Описание");
+        Epic epic = new Epic(1, "Эпик", "Описание эпика");
         manager.addEpic(epic);
 
         // Две NEW с «граничными» длительностями:
-        SubTask s4 = new SubTask(4, "СабТаска1", "СабТаска1_Тест", epic.getId());
+        SubTask s4 = new SubTask(4, "Подзадача 1", "Подзадача 1 Тест", epic.getId());
         s4.setStartTime(LocalDateTime.of(2025, 1, 1, 0, 0));
         s4.setDuration(Duration.ofHours(25));     // 25 часов
         s4.setStatus(TaskStatus.NEW);
 
-        SubTask s5 = new SubTask(5, "СабТаска2", "СабТаска2_Тест", epic.getId());
+        SubTask s5 = new SubTask(5, "Подзадача 2", "Подзадача 2 Тест", epic.getId());
         s5.setStartTime(LocalDateTime.of(2025, 1, 2, 0, 0));
         s5.setDuration(Duration.ofHours(49));     // 49 часов
         s5.setStatus(TaskStatus.NEW);
 
         // Одна IN_PROGRESS
-        SubTask s6 = new SubTask(6, "СабТаска3", "СабТаска3_Тест", epic.getId());
+        SubTask s6 = new SubTask(6, "Подзадача 3", "Подзадача 3 Тест", epic.getId());
         s6.setStartTime(LocalDateTime.of(2025, 1, 3, 0, 0));
         s6.setDuration(Duration.ofHours(1));
         s6.setStatus(TaskStatus.IN_PROGRESS);
@@ -187,21 +187,21 @@ class EpicTest {
         // Проверка статуса
         assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus(), "Эпик должен стать IN_PROGRESS");
 
-        // Дополнительно проверим агрегаты эпика (необязательно, но полезно)
+        // Дополнительно проверим агрегаты эпика
         assertEquals(
                 s4.getStartTime(),
                 epic.getStartTime(),
-                "startTime эпика — минимум startTime его сабтасков"
+                "startTime эпика — минимум startTime его подзадач"
         );
         assertEquals(
                 s5.getEndTime(),
                 epic.getEndTime(),
-                "endTime эпика — максимум endTime его сабтасков"
+                "endTime эпика — максимум endTime его подзадач"
         );
         assertEquals(
                 s4.getDuration().plus(s5.getDuration()).plus(s6.getDuration()),
                 epic.getDuration(),
-                "duration эпика — сумма длительностей сабтасков"
+                "duration эпика — сумма длительностей подзадач"
         );
     }
 
@@ -218,14 +218,14 @@ class EpicTest {
         manager.addSubTask(subTask1);
         manager.addSubTask(subTask2);
 
-        // 1) у сабтасков должен быть корректный epicId
+        // 1) у подзадач должен быть корректный epicId
         assertEquals(epic.getId(), subTask1.getEpicId());
         assertEquals(epic.getId(), subTask2.getEpicId());
 
-        // 2) эпик должен содержать id обеих сабтасков
+        // 2) эпик должен содержать id обеих подзадач
         assertTrue(epic.getSubTaskIds().containsAll(List.of(10, 11)));
 
-        // 3) менеджер должен уметь вернуть сабтаски по epicId
+        // 3) менеджер должен уметь вернуть подзадачи по epicId
         List<SubTask> byEpic = manager.getSubTasksByEpicId(epic.getId());
         assertEquals(2, byEpic.size());
         assertTrue(byEpic.stream().map(SubTask::getId).toList().containsAll(List.of(10, 11)));

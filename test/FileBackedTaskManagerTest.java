@@ -30,9 +30,9 @@ public class FileBackedTaskManagerTest {
         // загружаем и проверяем, что всё пусто
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
         assertAll(
-                () -> assertTrue(loaded.getTasks().isEmpty(), "Tasks должны быть пустыми"),
-                () -> assertTrue(loaded.getEpics().isEmpty(), "Epics должны быть пустыми"),
-                () -> assertTrue(loaded.getSubTasks().isEmpty(), "SubTasks должны быть пустыми")
+                () -> assertTrue(loaded.getTasks().isEmpty(), "Задачи должны быть пустыми"),
+                () -> assertTrue(loaded.getEpics().isEmpty(), "Эпики должны быть пустыми"),
+                () -> assertTrue(loaded.getSubTasks().isEmpty(), "Подзадачи должны быть пустыми")
         );
     }
 

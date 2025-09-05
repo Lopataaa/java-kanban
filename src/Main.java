@@ -35,7 +35,6 @@ public class Main {
         Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1");
         taskManager.addEpic(epic1);
 
-        // Нужно ли мне сохранение epic1 в файл?????
         try (FileOutputStream fileOut = new FileOutputStream("epic1.ser");
              ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
             out.writeObject(epic1);
