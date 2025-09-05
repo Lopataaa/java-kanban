@@ -251,4 +251,5 @@ class EpicTest {
 
         assertTrue(taskManager.hasOverIntersectionTasks(t2), "t2 должен пересекаться с t1");
         assertFalse(taskManager.hasOverIntersectionTasks(t3), "t3 не должен пересекаться ни с t1, ни с t2");
-    }}
+    }
+}

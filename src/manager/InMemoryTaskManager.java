@@ -206,9 +206,9 @@ public class InMemoryTaskManager implements TaskManager {
     public boolean isOverIntersection(Task t1, Task t2) {
         if (t1 == null || t2 == null) return false;
         LocalDateTime aStart = t1.getStartTime();
-        LocalDateTime aEnd   = t1.getEndTime();
+        LocalDateTime aEnd = t1.getEndTime();
         LocalDateTime bStart = t2.getStartTime();
-        LocalDateTime bEnd   = t2.getEndTime();
+        LocalDateTime bEnd = t2.getEndTime();
         if (aStart == null || aEnd == null || bStart == null || bEnd == null) return false;
 
         // пересекаются, если интервалы не лежат строго «до» друг друга
@@ -225,7 +225,9 @@ public class InMemoryTaskManager implements TaskManager {
         return false;
     }
 
-    /** Пересчёт агрегатов эпика: статус, duration, startTime, endTime */
+    /**
+     * Пересчёт агрегатов эпика: статус, duration, startTime, endTime
+     */
     private void refreshEpic(Epic epic) {
         if (epic == null) return;
 
@@ -241,7 +243,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         boolean allDone = subs.stream().allMatch(s -> s.getStatus() == TaskStatus.DONE);
-        boolean allNew  = subs.stream().allMatch(s -> s.getStatus() == TaskStatus.NEW);
+        boolean allNew = subs.stream().allMatch(s -> s.getStatus() == TaskStatus.NEW);
         epic.setStatus(allDone ? TaskStatus.DONE : (allNew ? TaskStatus.NEW : TaskStatus.IN_PROGRESS));
 
         // duration = сумма

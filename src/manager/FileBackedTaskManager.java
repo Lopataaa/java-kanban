@@ -57,8 +57,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             all.filter(filter)
                     .map(this::toCsv)
                     .forEach(line -> {
-                        try { w.write(line); w.write('\n'); }
-                        catch (IOException e) { throw new UncheckedIOException(e); }
+                        try {
+                            w.write(line);
+                            w.write('\n');
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
                     });
 
         } catch (IOException | UncheckedIOException e) {

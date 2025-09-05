@@ -16,25 +16,39 @@ public interface TaskManager {
 
     // Task
     int addTask(Task task);
+
     int updateTask(Task updateTask);
+
     void deleteTask(int id);
+
     List<Task> getTasks();
+
     Task findTaskById(int id);
 
     // SubTask
     int addSubTask(SubTask subTask);
+
     int updateSubTask(SubTask updateSubTask);
+
     void deleteSubTask();
+
     void deleteAllSubtasks();
+
     List<SubTask> getSubTasks();
+
     SubTask findSubTaskById(int id);
 
     // Epic
     int addEpic(Epic epic);
+
     int updateEpic(Epic updateEpic);
+
     void deleteEpic(int id);
+
     Epic findEpicById(int id);
+
     List<Epic> getEpics();
+
     void updateEpicStatus(Epic epic);
 
     List<SubTask> getSubTasksByEpicId(int epicId);
