@@ -10,10 +10,7 @@ public class Task {
     private String name;
     private String description;
     public TaskStatus status;
-    private TaskType getType;
-    private String getName;
-    private TaskStatus getStatus;
-    private int getEpic;
+    public TaskType type;
     private Duration duration;
     private LocalDateTime startTime;
 
@@ -23,126 +20,74 @@ public class Task {
     public Task(String taskName, String taskDescription) {
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public Task(int id, String name, String description) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.status = TaskStatus.NEW;
         this.duration = Duration.ZERO;
-        this.status = null;
-    }
-
-    public void setStatus(TaskStatus status) {
-        this.status = status;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
+        this.type = TaskType.TASK;
     }
 
     public int getId() {
         return id;
     }
 
-    public TaskStatus getStatus() {
-        return status;
+    public String getName() {
+        return name;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public TaskType getType() {
-        return TaskType.TASK;
+    public TaskStatus getStatus() {
+        return status;
     }
 
-    public int getEpic() {
-        return getEpic;
+    public TaskType getType() {
+        return type;
     }
 
     public Duration getDuration() {
         return duration;
     }
 
-    public void setDuration(Duration duration) {
-        this.duration = duration;
-    }
-
     public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
+    public LocalDateTime getEndTime() {
+        if (startTime == null || duration == null) return null;
+        return startTime.plus(duration);
     }
 
-    @Override
-    public String toString() {
-        return String.format("%d,%s,%s,%s,%s,%d",
-                getId(), getType(), getDescription(), getName(), getStatus(), getEpic());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return getId() == task.getId();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getName(), getDescription());
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public static Task fromString(String line) {
-        String[] parts = line.split(",");
-        int id = Integer.parseInt(parts[0]);
-        TaskType type = TaskType.valueOf(parts[1]);
-        String description = parts[2];
-        String name = parts[3];
-        TaskStatus status;
-        if (parts[4] == null || parts[4].isEmpty()) {
-            status = TaskStatus.NEW; // или любое другое значение по умолчанию
-        } else {
-            try {
-                status = TaskStatus.valueOf(parts[4]);
-            } catch (IllegalArgumentException e) {
-                // Если значение не соответствует ни одному из значений enum, устанавливаем значение по умолчанию
-                status = TaskStatus.NEW;
-            }
-        }
-
-        int epic = "".equals(parts[5]) ? 0 : Integer.parseInt(parts[5]); // преобразование в целое число
-
-        switch (type) {
-            case TASK:
-                return new Task(id, description, name);
-            case EPIC:
-                return new Epic(id, description, name);
-            case SUBTASK:
-                return new SubTask(id, description, name, epic);
-            default:
-                throw new IllegalArgumentException("Unknown task type: " + type);
-        }
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public LocalDateTime getEndTime() {
-        if (startTime == null) {
-            return null;
-        }
-        return startTime.plus(duration);
+    public void setStatus(TaskStatus status) {
+        this.status = status;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setType(TaskType type) {
+        this.type = type;
     }
 
     // Метод для определения пересечения задач
@@ -159,5 +104,57 @@ public class Task {
             }
         }
         return false; // Пересечений нет
+    }
+
+    public static Task fromString(String line) {
+        // -1 чтобы не отбрасывать пустую последнюю колонку (epic)
+        String[] parts = line.split(",", -1);
+
+        int id = Integer.parseInt(parts[0]);
+        TaskType type = TaskType.valueOf(parts[1]);
+        String name = parts[2];
+        String description = parts[3];
+        TaskStatus status = (parts[4] == null || parts[4].isEmpty())
+                ? TaskStatus.NEW
+                : TaskStatus.valueOf(parts[4]);
+
+        int epicId = (parts.length > 5 && !parts[5].isEmpty())
+                ? Integer.parseInt(parts[5])
+                : 0;
+
+        Task t;
+        switch (type) {
+            case TASK -> t = new Task(id, name, description);
+            case EPIC -> t = new Epic(id, name, description);
+            case SUBTASK -> t = new SubTask(id, name, description, epicId);
+            default -> throw new IllegalArgumentException("Unknown task type: " + type);
+        }
+        t.setStatus(status);
+        return t;
+    }
+
+    @Override
+    public String toString() {
+        String epicCol = (this instanceof SubTask st) ? String.valueOf(st.getEpicId()) : "";
+        return String.format("%d,%s,%s,%s,%s,%s",
+                getId(),           // 0
+                getType(),         // 1
+                getName(),         // 2
+                getDescription(),  // 3
+                getStatus(),       // 4
+                epicCol            // 5
+        );
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getDescription());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return getId() == task.getId();
     }
 }

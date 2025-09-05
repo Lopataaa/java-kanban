@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class SubTask extends Task {
 
-    private int epicId;
+    private final int epicId;
 
     public int getEpicId() {
         return epicId;
@@ -13,10 +13,7 @@ public class SubTask extends Task {
     public SubTask(int id, String name, String description, int epicId) {
         super(id, name, description);
         this.epicId = epicId;
-    }
-
-    public void setStatus(TaskStatus status) {
-        this.status = status;
+        setType(TaskType.SUBTASK);
     }
 
 
@@ -44,4 +41,3 @@ public class SubTask extends Task {
                 '}';
     }
 }
-

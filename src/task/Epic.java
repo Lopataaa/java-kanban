@@ -1,50 +1,71 @@
 package task;
 
 import java.io.Serializable;
-import java.util.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Epic extends Task implements Serializable {
 
-    private final ArrayList<Integer> subTaskIds = new ArrayList<>();
-
+    public List<Integer> subTaskIds = new ArrayList<>();
+    private TaskStatus status = TaskStatus.NEW;
     private Duration duration;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
     public Epic(int id, String name, String description) {
         super(id, name, description);
-        this.status = TaskStatus.NEW;
-        this.duration = Duration.ZERO;
-        this.startTime = null;
-        this.endTime = null;
+        setType(TaskType.EPIC);
     }
 
-    public void updateStatus() {
-        boolean allSubTasksCompleted = true;
-        for (Integer subTaskId : subTaskIds) {
-            Map<Integer, SubTask> subTasksMap = new HashMap<>();
-            SubTask subTask = subTasksMap.get(subTaskId);
-            if (subTask.getStatus() != TaskStatus.DONE) {
-                allSubTasksCompleted = false;
-                break;
-            }
-        }
-        if (allSubTasksCompleted) {
-            this.status = TaskStatus.DONE;
-        } else if (this.status == TaskStatus.NEW) {
-            this.status = TaskStatus.IN_PROGRESS;
-        }
-    }
-
-
-    public ArrayList<Integer> getSubTaskIds() {
+    public List<Integer> getSubTaskIds() {
         return subTaskIds;
     }
 
-    public void addSubTaskId(int subTaskId) {
-        subTaskIds.add(subTaskId);
+    public void addSubTaskId(int id) {
+        if (!subTaskIds.contains(id)) subTaskIds.add(id);
+    }
+
+    public void deleteSubTaskId(int id) {
+        subTaskIds.remove((Integer) id);
+    }
+
+    @Override
+    public Duration getDuration() {
+        return duration;
+    }
+
+    @Override
+    public TaskStatus getStatus() {
+        return status;
+    }
+
+    @Override
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+
+    public void setDuration(Duration d) {
+        this.duration = d;
+    }
+
+    public void setStartTime(LocalDateTime t) {
+        this.startTime = t;
+    }
+
+    public void setEndTime(LocalDateTime t) {
+        this.endTime = t;
+    }
+
+    public void setStatus(TaskStatus status) {
+        this.status = status;
     }
 
     @Override
@@ -54,54 +75,18 @@ public class Epic extends Task implements Serializable {
         return getId() == epic.getId();
     }
 
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getName(), getDescription());
-    }
-
-    public void deleteSubTaskId(int subTaskId) {
-        subTaskIds.remove((Integer) subTaskId);
-    }
-
-    public void calculateDuration(List<SubTask> subTasks) { //Продолжительность эпика — сумма продолжительностей
-        // всех его подзадач
-        duration = subTasks.stream()// создала поток из списка подзадач
-                .map(SubTask::getDuration)//возврат продолжительности подзадачи
-                .reduce(Duration::plus) //суммирование длительности подзадач
-                .orElse(Duration.ZERO); //если подзадачи отсутствуют
-    }
-
-    public void determineStartTime(List<SubTask> subTasks) { //Время начала — дата старта самой ранней подзадачи
-        Optional<LocalDateTime> earliestStartTime = subTasks.stream()
-                .map(SubTask::getStartTime) //возврат времени начала подзадачи
-                .filter(Objects::nonNull)
-                .min(Comparator.naturalOrder()); //минимальное значение времени начала
-        startTime = earliestStartTime.orElse(null); //время начала или null в случае, если нет подзадач
-    }
-
-    public void determineEndTime(List<SubTask> subTasks) { //время завершения — время окончания самой поздней из задач
-        Optional<LocalDateTime> latestEndTime = subTasks.stream()
-                .map(SubTask::getEndTime)//возврат времени окончания подзадачи
-                .filter(Objects::nonNull)
-                .max(Comparator.naturalOrder()); //максимальное значение времени окончания
-        endTime = latestEndTime.orElse(null); //время завершения или null в случае, если нет подзадач
-    }
-
     @Override
     public String toString() {
-        return "Epic{" +
+        return "Epic {" +
                 "id=" + getId() +
-                ", status=" + getStatus() +
+                ", status=" + status +
                 ", description='" + getDescription() + '\'' +
                 ", name='" + getName() + '\'' +
-                ", subtaskIds=" + subTaskIds +
+                ", subtaskIds=" + getSubTaskIds() +
                 ", duration=" + duration +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 '}';
     }
-
-    public <T> void getSubTaskIds(List<T> list) {
-    }
 }
+

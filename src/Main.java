@@ -106,4 +106,3 @@ public class Main {
         System.out.println("Эпики после удаления: " + taskManager.getEpics());
     }
 }
-
