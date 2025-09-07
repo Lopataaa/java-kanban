@@ -6,6 +6,8 @@ import task.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,7 +27,7 @@ public class FileBackedTaskManagerTest {
         assertTrue(file.exists(), "Файл должен существовать");
         List<String> lines = Files.readAllLines(file.toPath());
         assertEquals(1, lines.size(), "В пустом менеджере должна сохраниться только строка заголовка");
-        assertEquals("id,type,name,description,status,epic", lines.get(0), "Неверный header");
+        assertEquals("id,type,name,description,status,epic,startTime,duration", lines.get(0), "Неверный header");
 
         // загружаем и проверяем, что всё пусто
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
@@ -44,7 +46,7 @@ public class FileBackedTaskManagerTest {
 
         FileBackedTaskManager m = new FileBackedTaskManager(file.getAbsolutePath());
         Task t1 = new Task(1, "Задача 1", "Описание задачи 1");
-        Epic e1 = new Epic(2, "Эпик 1", "Описание эпика 1");
+        Epic e1 = new Epic(2, "Эпик 1", "Описание эпика 1", LocalDateTime.now(), Duration.ofHours(1));
         SubTask s1 = new SubTask(3, "Подзадача 1", "Описание подзадачи 1", e1.getId());
 
         m.addEpic(e1);
@@ -56,7 +58,7 @@ public class FileBackedTaskManagerTest {
 
         List<String> lines = Files.readAllLines(file.toPath());
         assertFalse(lines.isEmpty(), "CSV не должен быть пустым");
-        assertEquals("id,type,name,description,status,epic", lines.get(0), "Неверный header");
+        assertEquals("id,type,name,description,status,epic,startTime,duration", lines.get(0), "Неверный header");
 
         // Должна быть ровно 1 строка с задачей + заголовок
         assertEquals(2, lines.size(), "Должна сохраниться ровно одна TASK-строка");
@@ -73,7 +75,7 @@ public class FileBackedTaskManagerTest {
 
         FileBackedTaskManager m = new FileBackedTaskManager(file.getAbsolutePath());
         m.addTask(new Task(1, "Задача 1", "Описание задачи 1"));
-        m.addEpic(new Epic(2, "Эпик 1", "Описание эпика 1"));
+        m.addEpic(new Epic(2, "Эпик 1", "Описание эпика 1", LocalDateTime.now(), Duration.ofHours(1)));
         m.addSubTask(new SubTask(3, "Подзадача 1", "Описание подзадачи 1", 2));
 
         m.save(TaskType.TASK); // файл содержит ТОЛЬКО tasks
@@ -93,7 +95,7 @@ public class FileBackedTaskManagerTest {
         Task t1 = new Task(1, "Задача 1", "Описание задачи 1");
         t1.setStatus(TaskStatus.NEW);
 
-        Epic e1 = new Epic(2, "Эпик 1", "Описание эпика 1");
+        Epic e1 = new Epic(2, "Эпик 1", "Описание эпика 1", LocalDateTime.now(), Duration.ofHours(1));
 
         SubTask s1 = new SubTask(3, "Подзадача 1", "Описание подзадачи 1", e1.getId());
         s1.setStatus(TaskStatus.NEW);

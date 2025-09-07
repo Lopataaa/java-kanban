@@ -7,6 +7,8 @@ import task.Task;
 
 import java.io.FileOutputStream; //Для сохранения объекта Epic в файл
 import java.io.ObjectOutputStream; //Для сохранения объекта Epic в файл
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
 
@@ -22,7 +24,7 @@ public class Main {
         SubTask subTask = new SubTask(newId++, description, name, statusInt);
         taskManager.addSubTask(subTask);
 
-        Epic epic = new Epic(newId++, description, name);
+        Epic epic = new Epic(newId++, description, name, LocalDateTime.now(), Duration.ofHours(1));
         taskManager.addEpic(epic);
 
         try (FileOutputStream fileOut = new FileOutputStream("epic.ser");
@@ -32,7 +34,8 @@ public class Main {
             e.printStackTrace();
         }
 
-        Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1");
+        Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1",
+                LocalDateTime.now(), Duration.ofHours(1));
         taskManager.addEpic(epic1);
 
         try (FileOutputStream fileOut = new FileOutputStream("epic1.ser");
@@ -56,7 +59,7 @@ public class Main {
         SubTask subTask3 = new SubTask(newId, "Подзадача 3 для эпика 1", "Описание подзадачи 3", epic1.getId());
         taskManager.addSubTask(subTask3);
 
-        Epic epic2 = new Epic(newId, "Эпик 2", "Описание эпика 2"); // эпик без подзадач
+        Epic epic2 = new Epic(newId, "Эпик 2", "Описание эпика 2", LocalDateTime.now(), Duration.ofHours(1)); // эпик без подзадач
         taskManager.addEpic(epic2);
 
         // Вызываем методы и проверяем историю просмотров

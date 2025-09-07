@@ -14,19 +14,29 @@ public class Task {
     private Duration duration;
     private LocalDateTime startTime;
 
-    public Task(int id, String taskName, String taskDescription, LocalDateTime startTime, LocalDateTime endTime) {
-    }
-
     public Task(String taskName, String taskDescription) {
     }
 
-    public Task(int id, String name, String description) {
+    public Task(int id, String name, String description) { // Основной конструктор — без времени (бессрочная задача)
         this.id = id;
         this.name = name;
         this.description = description;
         this.status = TaskStatus.NEW;
-        this.duration = Duration.ZERO;
+        this.startTime = null; // по умолчанию — нет времени
+        this.duration = null; // по умолчанию — нет длительности
         this.type = TaskType.TASK;
+    }
+
+    // Конструктор для задач с временем
+    public Task(int id, String name, String description, LocalDateTime startTime, Duration duration) {
+        this(id, name, description); // вызываем основной конструктор
+        this.startTime = startTime;
+        this.duration = duration; // может быть null — тогда задача "моментальная" или бессрочная
+    }
+
+    public LocalDateTime getEndTime() { // вычисляемый endTime
+        if (startTime == null || duration == null) return null;
+        return startTime.plus(duration);
     }
 
     public int getId() {
@@ -57,10 +67,10 @@ public class Task {
         return startTime;
     }
 
-    public LocalDateTime getEndTime() {
+    /*public LocalDateTime getEndTime() {
         if (startTime == null || duration == null) return null;
         return startTime.plus(duration);
-    }
+    }*/
 
     public void setId(int id) {
         this.id = id;
@@ -118,6 +128,14 @@ public class Task {
                 ? TaskStatus.NEW
                 : TaskStatus.valueOf(parts[4]);
 
+        LocalDateTime startTime = (parts.length > 6 && !parts[6].isEmpty())
+                ? LocalDateTime.parse(parts[6])
+                : null;
+
+        Duration duration = (parts.length > 7 && !parts[7].isEmpty())
+                ? Duration.parse(parts[7])
+                : null;
+
         int epicId = (parts.length > 5 && !parts[5].isEmpty())
                 ? Integer.parseInt(parts[5])
                 : 0;
@@ -125,7 +143,7 @@ public class Task {
         Task t;
         switch (type) {
             case TASK -> t = new Task(id, name, description);
-            case EPIC -> t = new Epic(id, name, description);
+            case EPIC -> t = new Epic(id, name, description, startTime, duration);
             case SUBTASK -> t = new SubTask(id, name, description, epicId);
             default -> throw new IllegalArgumentException("Unknown task type: " + type);
         }

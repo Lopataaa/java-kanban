@@ -30,7 +30,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 t.getName(),
                 t.getDescription(),
                 t.getStatus().name(),
-                epicCol
+                epicCol,
+                t.getStartTime() != null ? t.getStartTime().toString() : "",
+                t.getDuration() != null ? t.getDuration().toString() : ""
         );
     }
 
@@ -44,7 +46,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void saveFiltered(Predicate<Task> filter) {
         try (FileWriter w = new FileWriter(filePath)) {
-            w.write("id,type,name,description,status,epic");
+            w.write("id,type,name,description,status,epic,startTime,duration");
             w.write('\n');
 
             // объединяем все коллекции в один поток

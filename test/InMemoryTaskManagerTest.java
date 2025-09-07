@@ -4,6 +4,8 @@ import task.Epic;
 import task.SubTask;
 import task.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +31,7 @@ public class InMemoryTaskManagerTest {
     @Test
     public void testWithoutIrrelevantSubtasksId() {
         InMemoryTaskManager manager = new InMemoryTaskManager();
-        Epic epic = new Epic(1, "Эпик 1", "Описание эпика 1");
+        Epic epic = new Epic(1, "Эпик 1", "Описание эпика 1", LocalDateTime.now(), Duration.ofHours(1));
         SubTask subTask = new SubTask(2, "Подзадача 1", "Описание подзадачи 1", 1);
 
         manager.addEpic(epic);
@@ -70,9 +72,9 @@ public class InMemoryTaskManagerTest {
 
         };
 
-        Task task = new Task(1, "Задача 1", "Описание задачи 1");
+        Task task = new Task(1, "Задача 1", "Описание задачи 1", LocalDateTime.now(), Duration.ofHours(1));
         SubTask subTask = new SubTask(2, "Подзадача 1", "Описание подзадачи 1", 1);
-        Epic epic = new Epic(3, "Эпик 1", "Описание эпика 1");
+        Epic epic = new Epic(3, "Эпик 1", "Описание эпика 1", LocalDateTime.now(), Duration.ofHours(1));
 
         manager.addTask(task);
         assertNotNull(manager.findTaskById(1), "Задача должна быть найдена");

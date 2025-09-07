@@ -24,7 +24,7 @@ class TaskTest {
     @Test
     public void subTaskCannotBeEpic() {
         int newId = 1;
-        Epic epic = new Epic(newId, "Эпик 1", "Описание эпика 1");
+        Epic epic = new Epic(newId, "Эпик 1", "Описание эпика 1", LocalDateTime.now(), Duration.ofHours(1));
         SubTask subTask = new SubTask(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1",
                 epic.getId());
         assertNotEquals(epic.getClass(), subTask.getClass(), "SubTask не должен быть экземпляром Epic");

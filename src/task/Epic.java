@@ -14,8 +14,10 @@ public class Epic extends Task implements Serializable {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    public Epic(int id, String name, String description) {
+    public Epic(int id, String name, String description, LocalDateTime startTime, Duration duration) {
         super(id, name, description);
+        this.startTime = startTime;
+        this.duration = duration;
         setType(TaskType.EPIC);
     }
 

@@ -17,7 +17,7 @@ class EpicTest {
     @Test
     public void idEqualsForSubTaskClasses() {
         int newId = 1;
-        Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1");
+        Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1", LocalDateTime.now(), Duration.ofHours(1));
         SubTask subTask1 = new SubTask(
                 newId,
                 "Подзадача 1 для эпика 1", "Описание подзадачи 1",
@@ -35,8 +35,8 @@ class EpicTest {
     @Test
     public void idEqualsForEpicClasses() {
         int newId = 1;
-        Epic epic1 = new Epic(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1");
-        Epic epic2 = new Epic(newId, "Подзадача 2 для эпика 1", "Описание подзадачи 2");
+        Epic epic1 = new Epic(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1", LocalDateTime.now(), Duration.ofHours(1));
+        Epic epic2 = new Epic(newId, "Подзадача 2 для эпика 1", "Описание подзадачи 2", LocalDateTime.now(), Duration.ofHours(1));
         if (epic1.getId() == epic2.getId()) {
             assertEquals(epic1, epic2);
         }
@@ -45,7 +45,7 @@ class EpicTest {
     @Test
     public void epicCannotBeSubTask() {
         int newId = 1;
-        Epic epic = new Epic(newId, "Эпик 1", "Описание эпика 1");
+        Epic epic = new Epic(newId, "Эпик 1", "Описание эпика 1", LocalDateTime.now(), Duration.ofHours(1));
         SubTask subTask = new SubTask(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1",
                 epic.getId());
         assertNotEquals(subTask.getClass(), epic.getClass(), "объект Subtask нельзя сделать своим же эпиком");
@@ -54,7 +54,7 @@ class EpicTest {
     @Test
     public void testEndTime_Epic() {
         TaskManager tm = new InMemoryTaskManager();
-        Epic epic = new Epic(1, "Эпик", "Описание");
+        Epic epic = new Epic(1, "Эпик", "Описание", LocalDateTime.now(), Duration.ofHours(1));
         tm.addEpic(epic);
 
         SubTask s1 = new SubTask(2, "S1", "D1", epic.getId());
@@ -76,7 +76,7 @@ class EpicTest {
         TaskManager tm = new InMemoryTaskManager();
 
         // Epic
-        Epic epic = new Epic(100, "Эпик", "Описание");
+        Epic epic = new Epic(100, "Эпик", "Описание", LocalDateTime.now(), Duration.ofHours(1));
         tm.addEpic(epic);
 
         // SubTasks (оба NEW)
@@ -98,7 +98,7 @@ class EpicTest {
         TaskManager tm = new InMemoryTaskManager();
 
         // Epic
-        Epic epic = new Epic(1, "Эпик", "Описание");
+        Epic epic = new Epic(1, "Эпик", "Описание", LocalDateTime.now(), Duration.ofHours(1));
         tm.addEpic(epic);
 
         // Создаём подзадачи со статусом DONE
@@ -119,7 +119,7 @@ class EpicTest {
         TaskManager tm = new InMemoryTaskManager();
 
         // Epic
-        Epic epic = new Epic(1, "Эпик", "Описание");
+        Epic epic = new Epic(1, "Эпик", "Описание", LocalDateTime.now(), Duration.ofHours(1));
         tm.addEpic(epic);
 
         // Создаём подзадачи со статусом DONE
@@ -140,7 +140,7 @@ class EpicTest {
         TaskManager tm = new InMemoryTaskManager();
 
         // Epic
-        Epic epic = new Epic(1, "Эпик", "Описание");
+        Epic epic = new Epic(1, "Эпик", "Описание", LocalDateTime.now(), Duration.ofHours(1));
         tm.addEpic(epic);
 
         // Создаём подзадачи со статусом DONE
@@ -160,7 +160,7 @@ class EpicTest {
     void epicStatus_inProgress_whenAnySubtaskInProgress_andDurationsLong() {
         TaskManager manager = new InMemoryTaskManager();
 
-        Epic epic = new Epic(1, "Эпик", "Описание эпика");
+        Epic epic = new Epic(1, "Эпик", "Описание эпика", LocalDateTime.now(), Duration.ofHours(1));
         manager.addEpic(epic);
 
         // Две NEW с «граничными» длительностями:
@@ -209,7 +209,7 @@ class EpicTest {
     public void epicSubTaskConnection_managerMaintainsLinks() {
         TaskManager manager = new InMemoryTaskManager();
 
-        Epic epic = new Epic(1, "Эпик", "Описание");
+        Epic epic = new Epic(1, "Эпик", "Описание", LocalDateTime.now(), Duration.ofHours(1));
         manager.addEpic(epic);
 
         SubTask subTask1 = new SubTask(10, "Подзадача 1", "Описание подзадачи 1", epic.getId());
