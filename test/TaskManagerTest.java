@@ -19,7 +19,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void testAddTask() {
-        Task task = new Task("Задача", "Описание");
+        Task task = new Task(1,"Задача", "Описание");
         int id = taskManager.addTask(task);
         assertEquals(task, taskManager.findTaskById(id));
     }

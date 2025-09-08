@@ -15,6 +15,8 @@ import task.Task;
 import task.Epic;
 import task.TaskType;
 
+// Привет! Спасибо за подробное ревью, сразу более наглядными становятся замечания.
+
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final String filePath;
 
@@ -31,8 +33,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 t.getDescription(),
                 t.getStatus().name(),
                 epicCol,
-                t.getStartTime() != null ? t.getStartTime().toString() : "",
-                t.getDuration() != null ? t.getDuration().toString() : ""
+                t.getStartTime() != null ? t.getStartTime().toString() : "",  // добавлен startTime
+                t.getDuration() != null ? t.getDuration().toString() : ""     // добавлен duration
         );
     }
 
@@ -46,7 +48,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void saveFiltered(Predicate<Task> filter) {
         try (FileWriter w = new FileWriter(filePath)) {
-            w.write("id,type,name,description,status,epic,startTime,duration");
+            w.write("id,type,name,description,status,epic,startTime,duration"); // обновлённый заголовок
             w.write('\n');
 
             // объединяем все коллекции в один поток

@@ -12,6 +12,27 @@ import java.time.LocalDateTime;
 
 public class Main {
 
+    private static final String TASK_NAME = "Имя задачи";
+    private static final String TASK_DESCRIPTION = "Описание задачи";
+    private static final String TASK_NAME_1 = "Имя задачи 1";
+    private static final String TASK_DESCRIPTION_1 = "Описание задачи 1";
+    private static final String TASK_NAME_2 = "Имя задачи 2";
+    private static final String TASK_DESCRIPTION_2 = "Описание задачи 2";
+    private static final String SUBTASK_NAME = "Имя подзадачи";
+    private static final String SUBTASK_DESCRIPTION = "Описание подзадачи";
+    private static final String SUBTASK_NAME_1 = "Имя подзадачи 1";
+    private static final String SUBTASK_DESCRIPTION_1 = "Описание подзадачи 1";
+    private static final String SUBTASK_NAME_2 = "Имя подзадачи 2";
+    private static final String SUBTASK_DESCRIPTION_2 = "Описание подзадачи 2";
+    private static final String SUBTASK_NAME_3 = "Имя подзадачи 3";
+    private static final String SUBTASK_DESCRIPTION_3 = "Описание подзадачи 3";
+    private static final String EPIC_NAME = "Имя эпика";
+    private static final String EPIC_DESCRIPTION = "Описание эпика";
+    private static final String EPIC_NAME_1 = "Имя эпика 1";
+    private static final String EPIC_DESCRIPTION_1 = "Описание эпика 1";
+    private static final String EPIC_NAME_2 = "Имя эпика 2";
+    private static final String EPIC_DESCRIPTION_2 = "Описание эпика2";
+
     public static void main(String[] args) {
         int newId = 1;
         String name = "Имя задачи";
@@ -34,8 +55,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1",
-                LocalDateTime.now(), Duration.ofHours(1));
+        Epic epic1 = new Epic(newId, EPIC_NAME_1, EPIC_DESCRIPTION_1, LocalDateTime.now(), Duration.ofHours(1));
         taskManager.addEpic(epic1);
 
         try (FileOutputStream fileOut = new FileOutputStream("epic1.ser");
@@ -45,21 +65,21 @@ public class Main {
             e.printStackTrace();
         }
 
-        Task task1 = new Task(newId, "Задача 1", "Описание задачи 1"); // создайте две задачи
+        Task task1 = new Task(newId, TASK_NAME_1, TASK_DESCRIPTION_1); // создайте две задачи
         taskManager.addTask(task1);
-        Task task2 = new Task(newId, "Задача 2", "Описание задачи 2");
+        Task task2 = new Task(newId, TASK_NAME_2, TASK_DESCRIPTION_2);
         taskManager.addTask(task2);
 
-        //Epic epic1 = new Epic(newId, "Эпик 1", "Описание эпика 1"); // эпик с тремя подзадачами
+        //Epic epic1 = new Epic(newId, ); // эпик с тремя подзадачами
         taskManager.addEpic(epic1);
-        SubTask subTask1 = new SubTask(newId, "Подзадача 1 для эпика 1", "Описание подзадачи 1", epic1.getId());
+        SubTask subTask1 = new SubTask(newId, SUBTASK_NAME_1, SUBTASK_DESCRIPTION_1, epic1.getId());
         taskManager.addSubTask(subTask1);
-        SubTask subTask2 = new SubTask(newId, "Подзадача 2 для эпика 1", "Описание подзадачи 2", epic1.getId());
+        SubTask subTask2 = new SubTask(newId, SUBTASK_NAME_2, SUBTASK_DESCRIPTION_2, epic1.getId());
         taskManager.addSubTask(subTask2);
-        SubTask subTask3 = new SubTask(newId, "Подзадача 3 для эпика 1", "Описание подзадачи 3", epic1.getId());
+        SubTask subTask3 = new SubTask(newId, SUBTASK_NAME_3, SUBTASK_DESCRIPTION_3, epic1.getId());
         taskManager.addSubTask(subTask3);
 
-        Epic epic2 = new Epic(newId, "Эпик 2", "Описание эпика 2", LocalDateTime.now(), Duration.ofHours(1)); // эпик без подзадач
+        Epic epic2 = new Epic(newId, EPIC_NAME_2, EPIC_DESCRIPTION_2, LocalDateTime.now(), Duration.ofHours(1)); // эпик без подзадач
         taskManager.addEpic(epic2);
 
         // Вызываем методы и проверяем историю просмотров

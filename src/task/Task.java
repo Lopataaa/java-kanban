@@ -14,9 +14,6 @@ public class Task {
     private Duration duration;
     private LocalDateTime startTime;
 
-    public Task(String taskName, String taskDescription) {
-    }
-
     public Task(int id, String name, String description) { // Основной конструктор — без времени (бессрочная задача)
         this.id = id;
         this.name = name;

@@ -34,6 +34,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int addTask(Task task) {
+        if (task == null) {
+            throw new IllegalArgumentException("Task must not be null");
+        }
+        if (hasOverIntersectionTasks(task)) { // ДОБАВЛЕНА ВАЛИДАЦИЯ
+            throw new IllegalArgumentException("Задача пересекается по времени с существующей");
+        }
         tasks.put(task.getId(), task);
         upsertPrioritized(task);
         return task.getId();
@@ -43,6 +49,9 @@ public class InMemoryTaskManager implements TaskManager {
     public int updateTask(Task updateTask) {
         if (updateTask == null) {
             throw new IllegalArgumentException("Task must not be null");
+        }
+        if (hasOverIntersectionTasks(updateTask)) { // ДОБАВЛЕНА ВАЛИДАЦИЯ
+            throw new IllegalArgumentException("Задача пересекается по времени с существующей");
         }
         removeFromPrioritized(tasks.get(updateTask.getId()));
         tasks.put(updateTask.getId(), updateTask);
@@ -69,6 +78,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int addSubTask(SubTask subTask) {
+        if (subTask == null) {
+            throw new IllegalArgumentException("SubTask must not be null");
+        }
+        // ДОБАВЛЕНА ВАЛИДАЦИЯ
+        if (hasOverIntersectionTasks(subTask)) {
+            throw new IllegalArgumentException("Подзадача пересекается по времени с существующей");
+        }
         subTasks.put(subTask.getId(), subTask);
         upsertPrioritized(subTask);
 
@@ -85,6 +101,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (updateSubTask == null) {
             throw new IllegalArgumentException("SubTask must not be null");
         }
+        if (hasOverIntersectionTasks(updateSubTask)) { // ДОБАВЛЕНА ВАЛИДАЦИЯ
+            throw new IllegalArgumentException("Подзадача пересекается по времени с существующей");
+        }
 
         removeFromPrioritized(subTasks.get(updateSubTask.getId()));
         subTasks.put(updateSubTask.getId(), updateSubTask);
@@ -94,7 +113,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic != null) refreshEpic(epic);
         return updateSubTask.getId();
     }
-
 
     @Override
     public void deleteSubTask() {
