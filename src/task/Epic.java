@@ -1,35 +1,94 @@
 package task;
 
-import java.util.*;
+import java.io.Serializable;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Epic extends Task {
+public class Epic extends Task implements Serializable {
 
-    private final ArrayList<Integer> subTaskIds = new ArrayList<>();
+    public List<Integer> subTaskIds = new ArrayList<>();
+    private TaskStatus status = TaskStatus.NEW;
+    private Duration duration;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
-    public Epic(int id, String name, String description) {
+    public Epic(int id, String name, String description, LocalDateTime startTime, Duration duration) {
         super(id, name, description);
+        this.startTime = startTime;
+        this.duration = duration;
+        setType(TaskType.EPIC);
     }
 
-    public ArrayList<Integer> getSubTaskIds() {
+    public List<Integer> getSubTaskIds() {
         return subTaskIds;
     }
 
-    public void addSubTaskId(int subTaskId) {
-        subTaskIds.add(subTaskId);
+    public void addSubTaskId(int id) {
+        if (!subTaskIds.contains(id)) subTaskIds.add(id);
     }
 
-    public void deleteSubTaskId(int subTaskId) {
-        subTaskIds.remove((Integer) subTaskId);
+    public void deleteSubTaskId(int id) {
+        subTaskIds.remove((Integer) id);
+    }
+
+    @Override
+    public Duration getDuration() {
+        return duration;
+    }
+
+    @Override
+    public TaskStatus getStatus() {
+        return status;
+    }
+
+    @Override
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+
+    public void setDuration(Duration d) {
+        this.duration = d;
+    }
+
+    public void setStartTime(LocalDateTime t) {
+        this.startTime = t;
+    }
+
+    public void setEndTime(LocalDateTime t) {
+        this.endTime = t;
+    }
+
+    public void setStatus(TaskStatus status) {
+        this.status = status;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Epic epic = (Epic) o;
+        return getId() == epic.getId();
     }
 
     @Override
     public String toString() {
-        return "Epic{" +
+        return "Epic {" +
                 "id=" + getId() +
-                ", status=" + getStatus() +
+                ", status=" + status +
                 ", description='" + getDescription() + '\'' +
                 ", name='" + getName() + '\'' +
-                ", subtaskIds=" + subTaskIds +
+                ", subtaskIds=" + getSubTaskIds() +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
                 '}';
     }
 }
+

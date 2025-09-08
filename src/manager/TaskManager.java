@@ -3,46 +3,84 @@ package manager;
 import task.SubTask;
 import task.Task;
 import task.Epic;
+
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-public interface TaskManager { //реализовала п.1
-    List<Task> getTasks(); /* список методов, которые д.б. у любого объекта-менеджера. Для этого
-    удалила всё тело методов и оставила только сигнатуры методов*/
+public interface TaskManager {
+    /* реализовала п.1
+     * список методов, которые д.б. у любого объекта-менеджера. Для этого удалила всё тело методов и оставила
+     * только сигнатуры методов
+     */
 
-    List<SubTask> getSubTasks();
-
-    List<Epic> getEpics();
-
+    // Task
     int addTask(Task task);
 
-    void updateEpicStatus(Epic epic);
+    int updateTask(Task updateTask);
 
-    Task updateTask(Task updateTask);
+    void deleteTask(int id);
+
+    List<Task> getTasks();
 
     Task findTaskById(int id);
 
-    void addSubTask(SubTask subTask);
+    // SubTask
+    int addSubTask(SubTask subTask);
 
-    boolean updateSubTask(SubTask updateSubTask);
-
-    SubTask findSubTaskById(int id);
-
-    void addEpic(Epic epic);
-
-    boolean updateEpic(Epic updateEpic);
-
-    Epic findEpicById(int id);
-
-    void deleteAllSubtasks();
+    int updateSubTask(SubTask updateSubTask);
 
     void deleteSubTask();
 
-    void deleteEpic();
+    void deleteAllSubtasks();
+
+    List<SubTask> getSubTasks();
+
+    SubTask findSubTaskById(int id);
+
+    // Epic
+    int addEpic(Epic epic);
+
+    int updateEpic(Epic updateEpic);
+
+    void deleteEpic(int id);
+
+    Epic findEpicById(int id);
+
+    List<Epic> getEpics();
+
+    void updateEpicStatus(Epic epic);
 
     List<SubTask> getSubTasksByEpicId(int epicId);
 
-    List<Task> getHistory(); /* сигнатура метода, который будет возвращать последние 10 просмотренных задач,
-    а его реализация будет в классе InMemoryTaskManager*/
+    // сигнатура метода, который будет возвращать последние 10 просмотренных задач,
+    // а его реализация будет в классе InMemoryTaskManager
+    List<Task> getHistory();
 
+    Set<Task> tasks = new TreeSet<>((t1, t2) -> {
+        if (t1.getStartTime() == null || t2.getStartTime() == null) {
+            return 0; // Не учитываем задачу в сортировке, если время начала не задано
+        }
+        return t1.getStartTime().compareTo(t2.getStartTime());
+    });
+
+    default Set<Task> getPrioritizedTasks() {
+        return tasks;
+    }
+
+    default boolean isOverIntersection(Task task1, Task task2) {
+        return !(task1.getEndTime().isBefore(task2.getStartTime()) ||
+                task2.getEndTime().isBefore(task1.getStartTime()));
+    }
+
+    // Метод для проверки пересечения новой задачи с существующими
+    default boolean hasOverIntersectionTasks(Task newTask) {
+        for (Task existingTask : tasks) {
+            if (isOverIntersection(newTask, existingTask)) {
+                return true; // Пересечение найдено
+            }
+        }
+        return false; // Пересечений нет
+    }
 }
 
