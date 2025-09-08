@@ -12,22 +12,16 @@ import java.time.LocalDateTime;
 
 public class Main {
 
-    private static final String TASK_NAME = "Имя задачи";
-    private static final String TASK_DESCRIPTION = "Описание задачи";
     private static final String TASK_NAME_1 = "Имя задачи 1";
     private static final String TASK_DESCRIPTION_1 = "Описание задачи 1";
     private static final String TASK_NAME_2 = "Имя задачи 2";
     private static final String TASK_DESCRIPTION_2 = "Описание задачи 2";
-    private static final String SUBTASK_NAME = "Имя подзадачи";
-    private static final String SUBTASK_DESCRIPTION = "Описание подзадачи";
     private static final String SUBTASK_NAME_1 = "Имя подзадачи 1";
     private static final String SUBTASK_DESCRIPTION_1 = "Описание подзадачи 1";
     private static final String SUBTASK_NAME_2 = "Имя подзадачи 2";
     private static final String SUBTASK_DESCRIPTION_2 = "Описание подзадачи 2";
     private static final String SUBTASK_NAME_3 = "Имя подзадачи 3";
     private static final String SUBTASK_DESCRIPTION_3 = "Описание подзадачи 3";
-    private static final String EPIC_NAME = "Имя эпика";
-    private static final String EPIC_DESCRIPTION = "Описание эпика";
     private static final String EPIC_NAME_1 = "Имя эпика 1";
     private static final String EPIC_DESCRIPTION_1 = "Описание эпика 1";
     private static final String EPIC_NAME_2 = "Имя эпика 2";
@@ -70,7 +64,6 @@ public class Main {
         Task task2 = new Task(newId, TASK_NAME_2, TASK_DESCRIPTION_2);
         taskManager.addTask(task2);
 
-        //Epic epic1 = new Epic(newId, ); // эпик с тремя подзадачами
         taskManager.addEpic(epic1);
         SubTask subTask1 = new SubTask(newId, SUBTASK_NAME_1, SUBTASK_DESCRIPTION_1, epic1.getId());
         taskManager.addSubTask(subTask1);

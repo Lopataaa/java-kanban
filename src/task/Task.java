@@ -64,11 +64,6 @@ public class Task {
         return startTime;
     }
 
-    /*public LocalDateTime getEndTime() {
-        if (startTime == null || duration == null) return null;
-        return startTime.plus(duration);
-    }*/
-
     public void setId(int id) {
         this.id = id;
     }

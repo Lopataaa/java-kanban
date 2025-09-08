@@ -217,8 +217,9 @@ public class InMemoryTaskManager implements TaskManager {
         LocalDateTime bEnd = t2.getEndTime();
         if (aStart == null || aEnd == null || bStart == null || bEnd == null) return false;
 
-        // пересекаются, если интервалы не лежат строго «до» друг друга
-        return !(aEnd.isBefore(bStart) || bEnd.isBefore(aStart));
+        // Пересекаются, если один интервал НАЧИНАЕТСЯ ДО ОКОНЧАНИЯ другого, и наоборот
+        // Но не считаем пересечением, если один заканчивается ровно тогда, когда другой начинается
+        return aStart.isBefore(bEnd) && bStart.isBefore(aEnd);
     }
 
     @Override
