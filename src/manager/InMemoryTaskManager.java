@@ -232,6 +232,55 @@ public class InMemoryTaskManager implements TaskManager {
         return false;
     }
 
+    @Override
+    public void clearTasks() {
+        tasks.values().forEach(this::removeFromPrioritized);
+        tasks.clear();
+    }
+
+    @Override
+    public Epic getEpic(Integer id) {
+        if (id == null) {
+            return null;
+        }
+        Epic epic = epics.get(id);
+        if (epic != null) {
+            historyManager.add(epic);
+        }
+        return epic;
+    }
+
+    @Override
+    public void clearEpics() {
+        // Удаляем все эпики и связанные подзадачи
+        for (Epic epic : epics.values()) {
+            // Удаляем все подзадачи этого эпика
+            for (Integer subTaskId : epic.getSubTaskIds()) {
+                SubTask subTask = subTasks.remove(subTaskId);
+                removeFromPrioritized(subTask);
+            }
+            removeFromPrioritized(epic);
+        }
+        epics.clear();
+        subTasks.clear(); // Очищаем карту подзадач
+    }
+
+    @Override
+    public ArrayList<SubTask> getEpicSubTasks(Epic epic) {
+        if (epic == null) {
+            return new ArrayList<>();
+        }
+        ArrayList<SubTask> epicSubTasks = new ArrayList<>();
+        for (Integer subTaskId : epic.getSubTaskIds()) {
+            SubTask subTask = subTasks.get(subTaskId);
+            if (subTask != null) {
+                epicSubTasks.add(subTask);
+                historyManager.add(subTask);
+            }
+        }
+        return epicSubTasks;
+    }
+
     private void refreshEpic(Epic epic) {
         if (epic == null) return;
 

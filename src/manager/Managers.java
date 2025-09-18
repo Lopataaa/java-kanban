@@ -1,5 +1,6 @@
 package manager;
 
+import com.google.gson.Gson;
 import task.Task;
 
 import java.util.Set;
@@ -28,5 +29,9 @@ public class Managers {
     public static HistoryManager getDefaultHistory() {
 
         return new InMemoryHistoryManager();
+    }
+
+    public static Gson getGson() {
+        return new Gson();
     }
 }

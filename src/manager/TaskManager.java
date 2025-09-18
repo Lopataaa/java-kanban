@@ -4,6 +4,7 @@ import task.SubTask;
 import task.Task;
 import task.Epic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -82,5 +83,13 @@ public interface TaskManager {
         }
         return false; // Пересечений нет
     }
+
+    Epic getEpic(Integer integer);
+
+    void clearEpics();
+
+    ArrayList<SubTask> getEpicSubTasks(Epic epic);
+
+    void clearTasks();
 }
 
