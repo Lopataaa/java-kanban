@@ -52,7 +52,7 @@ public class TasksHandler extends BaseHttpHandler {
     }
 }*/
 
-package http.handlers;
+/*package http.handlers;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
@@ -166,5 +166,75 @@ public class TasksHandler extends BaseHttpHandler {
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(response);
         }
+    }
+}*/
+
+package http.handlers;
+
+import com.sun.net.httpserver.HttpExchange;
+import manager.TaskManager;
+import task.Task;
+
+import java.io.IOException;
+import java.util.function.Function;
+import java.util.regex.Pattern;
+
+public class TasksHandler extends BaseHttpHandler {
+
+    public TasksHandler(TaskManager taskManager) {
+        super(taskManager);
+    }
+
+    @Override
+    public void handle(HttpExchange h) throws IOException {
+        try {
+            String path = h.getRequestURI().getPath();
+            String method = h.getRequestMethod();
+
+            switch (method) {
+                case "GET":
+                    if (Pattern.matches("^/tasks$", path)) {
+                        handleGetRequest(h, path, "/tasks",
+                                (Void) -> taskManager.getTasks(),
+                                id -> taskManager.findTaskById(id));
+                    } else if (Pattern.matches("^/prioritized$", path)) {
+                        handleGetPrioritizedTasks(h); // обработка приоритетных задач
+                    } else {
+                        sendNotFound(h);
+                    }
+                    break;
+                case "POST":
+                    if (Pattern.matches("^/tasks$", path)) {
+                        handlePostRequest(h, Task.class,
+                                task -> {
+                                    taskManager.addTask(task);
+                                    return task;
+                                },
+                                task -> {
+                                    taskManager.updateTask(task);
+                                    return task;
+                                },
+                                task -> task.getId() == 0);
+                    } else {
+                        sendNotFound(h);
+                    }
+                    break;
+                case "DELETE":
+                    handleDeleteRequest(h, path, "/tasks",
+                            () -> taskManager.deleteAllTasks(),
+                            id -> taskManager.findTaskById(id),
+                            id -> taskManager.deleteTask(id));
+                    break;
+                default:
+                    sendNotFound(h);
+            }
+        } catch (Exception e) {
+            sendInternalServerError(h);
+        }
+    }
+
+    private void handleGetPrioritizedTasks(HttpExchange h) throws IOException {
+        // Используем метод из BaseHttpHandler для отправки ответа
+        sendSuccess(h, gson.toJson(taskManager.getPrioritizedTasks()));
     }
 }

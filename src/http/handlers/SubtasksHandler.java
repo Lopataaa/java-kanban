@@ -96,7 +96,7 @@ public class SubtasksHandler extends BaseHttpHandler {
                     handleDeleteRequest(h, path, "/subtasks",
                             () -> taskManager.deleteAllSubtasks(),
                             id -> taskManager.findTaskById(id),
-                            id -> taskManager.deleteSubTask());
+                            id -> taskManager.deleteSubTask(id));
                     break;
                 default:
                     sendNotFound(h);

@@ -129,15 +129,80 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteAllSubtasks() {
-        deleteSubTask();
+    public void deleteSubTask(int id) {
+        SubTask subTask = subTasks.remove(id);
+        if (subTask != null) {
+            // Удаляем из приоритизированного списка
+            removeFromPrioritized(subTask);
+
+            // Удаляем из эпика
+            Epic epic = epics.get(subTask.getEpicId());
+            if (epic != null) {
+                epic.deleteSubTaskId(id);
+                refreshEpic(epic); // Обновляем статус и время эпика
+            }
+
+            // Удаляем из истории
+            historyManager.remove(id);
+        }
     }
 
     @Override
+    public void deleteAllSubtasks() {
+        // Удаляем все подзадачи из приоритизированного списка
+        for (SubTask subTask : subTasks.values()) {
+            removeFromPrioritized(subTask);
+        }
+
+        // Удаляем все подзадачи из истории
+        for (Integer subTaskId : subTasks.keySet()) {
+            historyManager.remove(subTaskId);
+        }
+
+        // Очищаем карту подзадач
+        subTasks.clear();
+
+        // Очищаем связи у всех эпиков и обновляем их
+        for (Epic epic : epics.values()) {
+            epic.getSubTaskIds().clear();
+            refreshEpic(epic); // Обновляем статус и время эпиков
+        }
+    }
+
+//    @Override
+//    public void deleteAllSubTasks() {
+//        // Удаляем все подзадачи из приоритизированного списка
+//        subTasks.values().forEach(this::removeFromPrioritized);
+//
+//        // Удаляем все подзадачи из истории
+//        for (Integer subTaskId : subTasks.keySet()) {
+//            historyManager.remove(subTaskId);
+//        }
+//
+//        // Очищаем карту подзадач
+//        subTasks.clear();
+//
+//        // Очищаем связи у всех эпиков
+//        for (Epic epic : epics.values()) {
+//            epic.getSubTaskIds().clear();
+//            refreshEpic(epic); // Обновляем статус и время эпиков
+//        }
+//    }
+
+//    @Override
+//    public SubTask findSubTaskById(int id) {
+//        SubTask st = subTasks.get(id);
+//        if (st != null) historyManager.add(st);
+//        return st;
+//    }
+
+    @Override
     public SubTask findSubTaskById(int id) {
-        SubTask st = subTasks.get(id);
-        if (st != null) historyManager.add(st);
-        return st;
+        SubTask subTask = subTasks.get(id);
+        if (subTask != null) {
+            historyManager.add(subTask);
+        }
+        return subTask;
     }
 
     @Override

@@ -220,9 +220,9 @@ public abstract class BaseHttpHandler implements HttpHandler {
 
     }
 
-    /*protected void sendBadRequest(HttpExchange h) throws IOException {
+    protected void sendBadRequest(HttpExchange h) throws IOException {
         sendText(h, "Bad Request", 400);
-    }*/
+    }
 
     protected String readRequestBody(HttpExchange h) throws IOException {
         try (InputStream inputStream = h.getRequestBody()) {
@@ -241,7 +241,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
     protected <T extends Task> void handleGetRequest(HttpExchange h, String path, String basePath,
                                                      Function<Void, List<T>> getAllFunction,
                                                      Function<Integer, T> getByIdFunction) throws IOException {
-        if (Pattern.matches("^" + basePath + "$", path)) {
+        if (Pattern.matches("^" + basePath + "\\d+$", path)) {
             List<T> entities = getAllFunction.apply(null);
             sendSuccess(h, gson.toJson(entities));
 
@@ -249,10 +249,10 @@ public abstract class BaseHttpHandler implements HttpHandler {
             String[] pathParts = path.split("/");
             int id = parsePathId(pathParts[pathParts.length - 1]);
 
-            /*if (id == -1) {
+            if (id == -1) {
                 sendBadRequest(h);
                 return;
-            }*/
+            }
 
             T entity = getByIdFunction.apply(id);
             if (entity == null) {
@@ -281,8 +281,8 @@ public abstract class BaseHttpHandler implements HttpHandler {
                 result = updateFunction.apply(entity);
                 sendSuccess(h, gson.toJson(result));
             }
-        /*} catch (JsonSyntaxException e) {
-            sendBadRequest(h);*/
+        } catch (JsonSyntaxException e) {
+            sendBadRequest(h);
         } catch (IllegalStateException e) {
             sendHasInteractions(h);
         }
@@ -293,7 +293,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
                                            Function<Integer, T> getByIdFunction,
                                            java.util.function.Consumer<Integer> deleteByIdFunction) throws IOException {
         try {
-            if (Pattern.matches("^" + basePath + "$", path)) {
+            if (Pattern.matches("^" + basePath + "\\d+$", path)) {
                 clearAllFunction.run();
                 sendSuccess(h, "All entities cleared");
 
@@ -301,10 +301,10 @@ public abstract class BaseHttpHandler implements HttpHandler {
                 String[] pathParts = path.split("/");
                 int id = parsePathId(pathParts[pathParts.length - 1]);
 
-                /*if (id == -1) {
+                if (id == -1) {
                     sendBadRequest(h);
                     return;
-                }*/
+                }
 
                 T entityBefore = getByIdFunction.apply(id);
                 if (entityBefore == null) {
