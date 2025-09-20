@@ -74,29 +74,18 @@ public class HistoryHandler extends BaseHttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
+    public void handle(HttpExchange h) throws IOException {
         try {
-            String path = exchange.getRequestURI().getPath();
-            HttpMethod httpMethod;
+            String method = h.getRequestMethod();
 
-            try {
-                httpMethod = HttpMethod.valueOf(exchange.getRequestMethod());
-            } catch (IllegalArgumentException e) {
-                sendNotFound(exchange);
-                return;
-            }
-
-            if (httpMethod == HttpMethod.GET) {
-                if (Pattern.matches("^/history$", path)) {
-                    handleGetHistory(exchange);
-                } else {
-                    sendNotFound(exchange);
-                }
+            if ("GET".equals(method)) {
+                List<Task> history = taskManager.getHistory();
+                sendSuccess(h, gson.toJson(history));
             } else {
-                sendNotFound(exchange);
+                sendNotFound(h);
             }
         } catch (Exception e) {
-            sendInternalServerError(exchange);
+            sendInternalServerError(h);
         }
     }
 

@@ -1,5 +1,7 @@
 package task;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -8,10 +10,21 @@ import java.util.List;
 
 public class Epic extends Task implements Serializable {
 
+//    public List<Integer> subTaskIds = new ArrayList<>();
+
+    @SerializedName("subTaskIds")
     public List<Integer> subTaskIds = new ArrayList<>();
+
+    @SerializedName("epicStatus")
     private TaskStatus status = TaskStatus.NEW;
+
+    @SerializedName("epicDuration")
     private Duration duration;
+
+    @SerializedName("epicStartTime")
     private LocalDateTime startTime;
+
+    @SerializedName("epicEndTime")
     private LocalDateTime endTime;
 
     public Epic(int id, String name, String description, LocalDateTime startTime, Duration duration) {
@@ -19,6 +32,7 @@ public class Epic extends Task implements Serializable {
         this.startTime = startTime;
         this.duration = duration;
         setType(TaskType.EPIC);
+        this.subTaskIds = new ArrayList<>(); // явная инициализация
     }
 
     public List<Integer> getSubTaskIds() {

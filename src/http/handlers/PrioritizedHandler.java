@@ -70,34 +70,23 @@ public class PrioritizedHandler extends BaseHttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
+    public void handle(HttpExchange h) throws IOException {
         try {
-            String path = exchange.getRequestURI().getPath();
-            HttpMethod httpMethod;
+            String method = h.getRequestMethod();
 
-            try {
-                httpMethod = HttpMethod.valueOf(exchange.getRequestMethod());
-            } catch (IllegalArgumentException e) {
-                sendNotFound(exchange);
-                return;
-            }
-
-            if (httpMethod == HttpMethod.GET) {
-                if (Pattern.matches("^/prioritized$", path)) {
-                    handleGetPrioritizedTasks(exchange);
-                } else {
-                    sendNotFound(exchange);
-                }
+            if ("GET".equals(method)) {
+                List<Task> prioritized = (List<Task>) taskManager.getPrioritizedTasks();
+                sendSuccess(h, gson.toJson(prioritized));
             } else {
-                sendNotFound(exchange);
+                sendNotFound(h);
             }
         } catch (Exception e) {
-            sendInternalServerError(exchange);
+            sendInternalServerError(h);
         }
     }
 
     private void handleGetPrioritizedTasks(HttpExchange exchange) throws IOException {
-        List<Task> prioritizedTasks = (List<Task>) taskManager.getPrioritizedTasks();
+        List<Task> prioritizedTasks = taskManager.getPrioritizedTasks().stream().toList();
         sendSuccess(exchange, gson.toJson(prioritizedTasks));
     }
 }

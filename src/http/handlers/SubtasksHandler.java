@@ -69,47 +69,40 @@ public class SubtasksHandler extends BaseHttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
+    public void handle(HttpExchange h) throws IOException {
         try {
-            String path = exchange.getRequestURI().getPath();
-            HttpMethod httpMethod;
+            String path = h.getRequestURI().getPath();
+            String method = h.getRequestMethod();
 
-            try {
-                httpMethod = HttpMethod.valueOf(exchange.getRequestMethod());
-            } catch (IllegalArgumentException e) {
-                sendNotFound(exchange);
-                return;
-            }
-
-            switch (httpMethod) {
-                case GET:
-                    handleGetRequest(exchange, path, "/subtasks",
-                            v -> taskManager.getSubTasks(),
-                            taskManager::findSubTaskById);
+            switch (method) {
+                case "GET":
+                    handleGetRequest(h, path, "/subtasks",
+                            (Void) -> taskManager.getSubTasks(),
+                            id -> taskManager.findSubTaskById(id));
                     break;
-                case POST:
-                    handlePostRequest(exchange, SubTask.class,
-                            subtask -> {
-                                taskManager.addSubTask(subtask);  // вызываем метод
-                                return subtask;  // возвращаем тот же объект
+                case "POST":
+                    handlePostRequest(h, SubTask.class,
+                            subTask -> {
+                                taskManager.addSubTask(subTask);
+                                return subTask;
                             },
-                            subtask -> {
-                                taskManager.updateSubTask(subtask);  // вызываем метод
-                                return subtask;  // возвращаем тот же объект
+                            subTask -> {
+                                taskManager.updateSubTask(subTask);
+                                return subTask;
                             },
-                            subtask -> Boolean.valueOf(subtask.getId() == 0));
+                            subTask -> subTask.getId() == 0);
                     break;
-                case DELETE:
-                    handleDeleteRequest(exchange, path, "/subtasks",
-                            taskManager::deleteAllSubtasks,
-                            taskManager::findSubTaskById,
-                            id -> taskManager.deleteSubTask());  // Обертка для метода без параметров
+                case "DELETE":
+                    handleDeleteRequest(h, path, "/subtasks",
+                            () -> taskManager.deleteAllSubtasks(),
+                            id -> taskManager.findTaskById(id),
+                            id -> taskManager.deleteSubTask());
                     break;
                 default:
-                    sendNotFound(exchange);
+                    sendNotFound(h);
             }
         } catch (Exception e) {
-            sendInternalServerError(exchange);
+            sendInternalServerError(h);
         }
     }
 }

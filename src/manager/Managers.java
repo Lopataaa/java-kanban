@@ -1,18 +1,23 @@
 package manager;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import http.adapters.DurationTypeAdapter;
+import http.adapters.LocalDateTimeTypeAdapter;
 import task.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 public class Managers {
     public static TaskManager getDefault() {
         return new InMemoryTaskManager() {
 
-            @Override
+            /*@Override
             public Set<Task> getPrioritizedTasks() {
                 return Set.of();
-            }
+            }*/
 
             @Override
             public boolean isOverIntersection(Task task1, Task task2) {
@@ -32,6 +37,9 @@ public class Managers {
     }
 
     public static Gson getGson() {
-        return new Gson();
+        return new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
+                .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
+                .create();
     }
 }

@@ -178,6 +178,7 @@ import task.Task;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -216,6 +217,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
 
     protected void sendInternalServerError(HttpExchange h) throws IOException {
         sendText(h, "Internal Server Error", 500);
+
     }
 
     /*protected void sendBadRequest(HttpExchange h) throws IOException {
@@ -237,10 +239,10 @@ public abstract class BaseHttpHandler implements HttpHandler {
     }
 
     protected <T extends Task> void handleGetRequest(HttpExchange h, String path, String basePath,
-                                                     Function<Void, java.util.List<T>> getAllFunction,
+                                                     Function<Void, List<T>> getAllFunction,
                                                      Function<Integer, T> getByIdFunction) throws IOException {
         if (Pattern.matches("^" + basePath + "$", path)) {
-            java.util.List<T> entities = getAllFunction.apply(null);
+            List<T> entities = getAllFunction.apply(null);
             sendSuccess(h, gson.toJson(entities));
 
         } else if (Pattern.matches("^" + basePath + "\\d+$", path)) {

@@ -25,6 +25,7 @@ public class InMemoryTaskManager implements TaskManager {
     // Приоритезированный набор задач и подзадач по startTime
     private final NavigableSet<Task> prioritizedTask = new TreeSet<>(Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()))
             .thenComparingInt(Task::getId));
+    private int nextId = 1;
 
 
     @Override
@@ -179,6 +180,21 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public void deleteAllEpics() {
+        // Удаляем все эпики и связанные подзадачи
+        for (Epic epic : epics.values()) {
+            for (Integer subTaskId : epic.getSubTaskIds()) {
+                SubTask subTask = subTasks.remove(subTaskId);
+                removeFromPrioritized(subTask);
+                historyManager.remove(subTaskId);
+            }
+            historyManager.remove(epic.getId());
+        }
+        epics.clear();
+        subTasks.clear(); // Очищаем все подзадачи
+    }
+
+    @Override
     public Epic findEpicById(int id) {
         Epic epic = epics.get(id);
         if (epic != null) historyManager.add(epic);
@@ -232,11 +248,11 @@ public class InMemoryTaskManager implements TaskManager {
         return false;
     }
 
-    @Override
-    public void clearTasks() {
-        tasks.values().forEach(this::removeFromPrioritized);
-        tasks.clear();
-    }
+//    @Override
+//    public void clearTasks() {
+//        tasks.values().forEach(this::removeFromPrioritized);
+//        tasks.clear();
+//    }
 
     @Override
     public Epic getEpic(Integer id) {
@@ -329,4 +345,53 @@ public class InMemoryTaskManager implements TaskManager {
     private void removeFromPrioritized(Task t) {
         if (t != null) prioritizedTask.remove(t);
     }
+
+    private int getNextId() {
+        return nextId++;
+    }
+
+    @Override
+    public void deleteAllTasks() {
+        for (Integer taskId : tasks.keySet()) {
+            historyManager.remove(taskId);
+            removeFromPrioritized(tasks.get(taskId));
+        }
+        tasks.clear();
+    }
+
+//    @Override
+//    public void createTask(Task task) {
+//        if (task == null) {
+//            return;
+//        }
+//        int id = getNextId();
+//        task.setId(id);
+//        tasks.put(id, task);
+//    }
+
+//    @Override
+//    public void createSubTask(SubTask subTask) {
+//        if (subTask == null) {
+//            return;
+//        }
+//        int id = getNextId();
+//        subTask.setId(id);
+//        subTasks.put(id, subTask);
+//
+//        // Добавляем подзадачу в эпик
+//        Epic epic = epics.get(subTask.getEpicId());
+//        if (epic != null) {
+//            epic.addSubTaskId(id);
+//        }
+//    }
+
+//   @Override
+//    public void createEpic(Epic epic) {
+//        if (epic == null) {
+//            return;
+//        }
+//        int id = getNextId();
+//        epic.setId(id);
+//        epics.put(id, epic);
+//    }
 }
