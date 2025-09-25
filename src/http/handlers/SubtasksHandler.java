@@ -55,10 +55,10 @@ public class SubtaskHandler extends BaseHttpHandler {
 
 package http.handlers;
 
+import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
 import manager.TaskManager;
 import task.SubTask;
-import http.HttpMethod;
 
 import java.io.IOException;
 
@@ -69,40 +69,118 @@ public class SubtasksHandler extends BaseHttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange h) throws IOException {
+    public void handle(HttpExchange exchange) throws IOException {
         try {
-            String path = h.getRequestURI().getPath();
-            String method = h.getRequestMethod();
+            String path = exchange.getRequestURI().getPath();
+            String method = exchange.getRequestMethod();
+
+            System.out.println("Received " + method + " request for path: " + path);
 
             switch (method) {
                 case "GET":
-                    handleGetRequest(h, path, "/subtasks",
-                            (Void) -> taskManager.getSubTasks(),
-                            id -> taskManager.findSubTaskById(id));
+                    if (path.equals("/subtasks")) {
+                        System.out.println("Handling GET /subtasks");
+                        handleGetAllSubTasks(exchange);
+                    } else if (path.startsWith("/subtasks/")) {
+                        System.out.println("Handling GET /subtasks/{id}");
+                        handleGetSubTaskById(exchange, path);
+                    } else {
+                        System.out.println("Path not found: " + path);
+                        sendNotFound(exchange);
+                    }
                     break;
+
                 case "POST":
-                    handlePostRequest(h, SubTask.class,
-                            subTask -> {
-                                taskManager.addSubTask(subTask);
-                                return subTask;
-                            },
-                            subTask -> {
-                                taskManager.updateSubTask(subTask);
-                                return subTask;
-                            },
-                            subTask -> subTask.getId() == 0);
+                    if (path.equals("/subtasks")) {
+                        System.out.println("Handling POST /subtasks");
+                        handlePostSubTask(exchange);
+                    } else {
+                        sendNotFound(exchange);
+                    }
                     break;
+
                 case "DELETE":
-                    handleDeleteRequest(h, path, "/subtasks",
-                            () -> taskManager.deleteAllSubtasks(),
-                            id -> taskManager.findTaskById(id),
-                            id -> taskManager.deleteSubTask(id));
+                    if (path.startsWith("/subtasks/")) {
+                        System.out.println("Handling DELETE /subtasks/{id}");
+                        handleDeleteSubTaskById(exchange, path);
+                    } else if (path.equals("/subtasks")) {
+                        System.out.println("Handling DELETE /subtasks");
+                        handleDeleteAllSubTasks(exchange);
+                    } else {
+                        sendNotFound(exchange);
+                    }
                     break;
+
                 default:
-                    sendNotFound(h);
+                    sendNotFound(exchange);
             }
         } catch (Exception e) {
-            sendInternalServerError(h);
+            System.err.println("Error handling request: " + e.getMessage());
+            sendInternalServerError(exchange);
         }
+    }
+
+    private void handleGetAllSubTasks(HttpExchange exchange) throws IOException {
+        sendSuccess(exchange, gson.toJson(taskManager.getSubTasks()));
+    }
+
+    private void handleGetSubTaskById(HttpExchange exchange, String path) throws IOException {
+        try {
+            String idStr = path.substring(10); // "/subtasks/".length() = 10
+            int id = Integer.parseInt(idStr);
+            SubTask subTask = taskManager.findSubTaskById(id);
+            if (subTask != null) {
+                sendSuccess(exchange, gson.toJson(subTask));
+            } else {
+                sendNotFound(exchange);
+            }
+        } catch (NumberFormatException e) {
+            sendBadRequest(exchange, "Invalid subtask ID format");
+        } catch (Exception e) {
+            sendInternalServerError(exchange);
+        }
+    }
+
+    private void sendBadRequest(HttpExchange exchange, String invalidSubtaskIdFormat) {
+    }
+
+    private void handlePostSubTask(HttpExchange exchange) throws IOException {
+        try {
+            String body = readRequestBody(exchange);
+            SubTask subTask = gson.fromJson(body, SubTask.class);
+
+            if (subTask.getId() == 0) {
+                taskManager.addSubTask(subTask);
+                sendCreated(exchange, gson.toJson(subTask));
+            } else {
+                taskManager.updateSubTask(subTask);
+                sendSuccess(exchange, gson.toJson(subTask));
+            }
+        } catch (JsonSyntaxException e) {
+            sendBadRequest(exchange, "Invalid JSON format");
+        } catch (IllegalStateException e) {
+            sendHasInteractions(exchange);
+        }
+    }
+
+    private void handleDeleteSubTaskById(HttpExchange exchange, String path) throws IOException {
+        try {
+            String idStr = path.substring(10); // "/subtasks/".length() = 10
+            int id = Integer.parseInt(idStr);
+            SubTask subTask = taskManager.findSubTaskById(id);
+            if (subTask != null) {
+                taskManager.deleteSubTask(id);
+                sendSuccess(exchange, "SubTask deleted");
+            } else {
+                sendNotFound(exchange);
+            }
+        } catch (NumberFormatException e) {
+            sendBadRequest(exchange, "Invalid subtask ID format");
+        }
+    }
+
+    private void handleDeleteAllSubTasks(HttpExchange exchange) throws IOException {
+        taskManager.deleteAllSubtasks();
+        sendSuccess(exchange, "All subtasks deleted");
     }
 }

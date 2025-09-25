@@ -70,23 +70,26 @@ public class PrioritizedHandler extends BaseHttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange h) throws IOException {
+    public void handle(HttpExchange exchange) throws IOException {
         try {
-            String method = h.getRequestMethod();
-
-            if ("GET".equals(method)) {
-                List<Task> prioritized = (List<Task>) taskManager.getPrioritizedTasks();
-                sendSuccess(h, gson.toJson(prioritized));
+            if ("GET".equals(exchange.getRequestMethod())) {
+                handleGetPrioritized(exchange);
             } else {
-                sendNotFound(h);
+                sendNotFound(exchange);
             }
         } catch (Exception e) {
-            sendInternalServerError(h);
+            sendInternalServerError(exchange);
         }
     }
 
-    private void handleGetPrioritizedTasks(HttpExchange exchange) throws IOException {
-        List<Task> prioritizedTasks = taskManager.getPrioritizedTasks().stream().toList();
-        sendSuccess(exchange, gson.toJson(prioritizedTasks));
+    private void handleGetPrioritized(HttpExchange exchange) throws IOException {
+        try {
+            sendSuccess(exchange, gson.toJson(taskManager.getPrioritizedTasks()));
+        } catch (Exception e) {
+            // Логируем ошибку для debugging
+            System.err.println("Error in getPrioritizedTasks: " + e.getMessage());
+            e.printStackTrace();
+            sendInternalServerError(exchange);
+        }
     }
 }
