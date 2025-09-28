@@ -27,7 +27,6 @@ public class InMemoryTaskManager implements TaskManager {
             .thenComparingInt(Task::getId));
     private int nextId = 1;
 
-
     @Override
     public List<Task> getTasks() {
         return new ArrayList<>(tasks.values());
@@ -38,12 +37,17 @@ public class InMemoryTaskManager implements TaskManager {
         if (task == null) {
             throw new IllegalArgumentException("Task must not be null");
         }
-        if (hasOverIntersectionTasks(task)) { // ДОБАВЛЕНА ВАЛИДАЦИЯ
+        if (hasOverIntersectionTasks(task)) {
             throw new IllegalArgumentException("Задача пересекается по времени с существующей");
         }
-        tasks.put(task.getId(), task);
+
+        // Генерируем новый ID и устанавливаем его
+        int id = getNextId();
+        task.setId(id); // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+
+        tasks.put(id, task);
         upsertPrioritized(task);
-        return task.getId();
+        return id;
     }
 
     @Override
@@ -84,19 +88,20 @@ public class InMemoryTaskManager implements TaskManager {
         if (subTask == null) {
             throw new IllegalArgumentException("SubTask must not be null");
         }
-        // ДОБАВЛЕНА ВАЛИДАЦИЯ
-        if (hasOverIntersectionTasks(subTask)) {
-            throw new IllegalArgumentException("Подзадача пересекается по времени с существующей");
-        }
-        subTasks.put(subTask.getId(), subTask);
+
+        // Генерируем новый ID и устанавливаем его
+        int id = getNextId();
+        subTask.setId(id);
+
+        subTasks.put(id, subTask);
         upsertPrioritized(subTask);
 
         Epic epic = epics.get(subTask.getEpicId());
         if (epic != null) {
-            epic.addSubTaskId(subTask.getId());
+            epic.addSubTaskId(id);
             refreshEpic(epic);
         }
-        return subTask.getId();
+        return id;
     }
 
     @Override
@@ -192,9 +197,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int addEpic(Epic epic) {
-        epics.put(epic.getId(), epic);
+        if (epic == null) {
+            throw new IllegalArgumentException("Epic must not be null");
+        }
+
+        // Генерируем новый ID и устанавливаем его
+        int id = getNextId();
+        epic.setId(id); // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+
+        epics.put(id, epic);
         refreshEpic(epic);
-        return epic.getId();
+        return id;
     }
 
     @Override
@@ -383,7 +396,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private int getNextId() {
-        return nextId++;
+        int newId = nextId;
+        nextId++;
+        System.out.println("Generated new ID: " + newId); // отладочная информация
+        return newId;
     }
 
     @Override

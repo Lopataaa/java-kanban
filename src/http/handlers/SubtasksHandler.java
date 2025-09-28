@@ -58,6 +58,7 @@ package http.handlers;
 import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
 import manager.TaskManager;
+import task.Epic;
 import task.SubTask;
 
 import java.io.IOException;
@@ -153,14 +154,19 @@ public class SubtasksHandler extends BaseHttpHandler {
             // Проверяем существование эпика
             if (subTask.getEpicId() > 0) {
                 System.out.println("Checking if epic exists: " + subTask.getEpicId());
-                // Здесь должна быть проверка существования эпика
+                Epic epic = taskManager.findEpicById(subTask.getEpicId());
+                System.out.println("Epic found: " + (epic != null));
             }
 
             if (subTask.getId() == 0) {
                 System.out.println("Creating new subtask");
-                taskManager.addSubTask(subTask);
+                int newId = taskManager.addSubTask(subTask); // Получаем новый ID
+                System.out.println("Created subtask with new ID: " + newId);
+
+                // Обновляем ID у объекта
+                subTask.setId(newId);
                 String responseJson = gson.toJson(subTask);
-                System.out.println("Created subtask with ID: " + subTask.getId());
+                System.out.println("Sending response: " + responseJson);
                 sendCreated(exchange, responseJson);
             } else {
                 System.out.println("Updating existing subtask");
