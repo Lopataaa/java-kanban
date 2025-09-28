@@ -137,7 +137,39 @@ public class SubtasksHandler extends BaseHttpHandler {
     }
 
     private void handleGetSubTaskById(HttpExchange exchange, String path) throws IOException {
+        try {
+            String idStr = path.substring(10);
+            int id = Integer.parseInt(idStr);
 
+            System.out.println("=== GET /subtasks/" + id + " ===");
+            System.out.println("Looking for subtask with ID: " + id);
+
+            // Показываем все доступные подзадачи
+            List<SubTask> allSubTasks = taskManager.getSubTasks();
+            System.out.println("Available subtasks (" + allSubTasks.size() + "):");
+            for (SubTask st : allSubTasks) {
+                System.out.println("  - ID: " + st.getId() + ", Name: " + st.getName());
+            }
+
+            SubTask subTask = taskManager.findSubTaskById(id);
+
+            if (subTask != null) {
+                System.out.println("✓ Subtask found: " + subTask.getName());
+                String json = gson.toJson(subTask);
+                System.out.println("Sending JSON: " + json);
+                sendSuccess(exchange, json);
+            } else {
+                System.out.println("✗ Subtask not found with ID: " + id);
+                sendNotFound(exchange);
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid subtask ID format: " + e.getMessage());
+            sendBadRequest(exchange, "Invalid subtask ID format");
+        } catch (Exception e) {
+            System.err.println("Error getting subtask by ID: " + e.getMessage());
+            e.printStackTrace();
+            sendInternalServerError(exchange);
+        }
     }
 
     private void sendBadRequest(HttpExchange exchange, String invalidSubtaskIdFormat) {

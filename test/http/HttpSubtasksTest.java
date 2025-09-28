@@ -64,26 +64,31 @@ class HttpSubtasksTest extends HttpTasksTest {
 
     @Test
     @DisplayName("Получение подзадачи по ID")
-    void testGet_SubtaskById() throws IOException, InterruptedException {
+    void testGetSubtaskById() throws IOException, InterruptedException {
         int epicId = createEpic();
 
         SubTask subtask = new SubTask(0, "Test Subtask", "Test Description", epicId);
         subtask.setStatus(TaskStatus.NEW);
         String subtaskJson = gson.toJson(subtask);
 
+        // Создаем подзадачу и получаем ответ
         HttpResponse<String> postResponse = createSubtask(subtaskJson);
-        assertEquals(201, postResponse.statusCode(), "Неверный статус код при создании");
+        assertEquals(201, postResponse.statusCode());
 
+        // Извлекаем реальный ID из ответа
         SubTask createdSubtask = gson.fromJson(postResponse.body(), SubTask.class);
-        int subtaskId = createdSubtask.getId();
+        int subtaskId = createdSubtask.getId(); // Это будет 2 (или другой сгенерированный ID)
 
+        System.out.println("Created subtask with ID: " + subtaskId);
+
+        // Используем реальный ID для запроса
         HttpRequest getRequest = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8080/subtasks/" + subtaskId))
                 .GET()
                 .build();
 
         HttpResponse<String> getResponse = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, getResponse.statusCode(), "Неверный статус код");
+        assertEquals(200, getResponse.statusCode());
 
         SubTask responseSubtask = gson.fromJson(getResponse.body(), SubTask.class);
         assertNotNull(responseSubtask, "Подзадача не вернулась");
