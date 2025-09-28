@@ -8,16 +8,10 @@ import task.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 public class Managers {
     public static TaskManager getDefault() {
         return new InMemoryTaskManager() {
-
-            /*@Override
-            public Set<Task> getPrioritizedTasks() {
-                return Set.of();
-            }*/
 
             @Override
             public boolean isOverIntersection(Task task1, Task task2) {

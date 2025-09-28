@@ -61,6 +61,7 @@ import manager.TaskManager;
 import task.SubTask;
 
 import java.io.IOException;
+import java.util.List;
 
 public class SubtasksHandler extends BaseHttpHandler {
 
@@ -121,24 +122,21 @@ public class SubtasksHandler extends BaseHttpHandler {
     }
 
     private void handleGetAllSubTasks(HttpExchange exchange) throws IOException {
-        sendSuccess(exchange, gson.toJson(taskManager.getSubTasks()));
+        try {
+            List<SubTask> subTasks = taskManager.getSubTasks();
+            System.out.println("Total subtasks found: " + subTasks.size());
+            for (SubTask subTask : subTasks) {
+                System.out.println("Subtask ID: " + subTask.getId() + ", Name: " + subTask.getName());
+            }
+            sendSuccess(exchange, gson.toJson(subTasks));
+        } catch (Exception e) {
+            System.err.println("Error getting all subtasks: " + e.getMessage());
+            sendInternalServerError(exchange);
+        }
     }
 
     private void handleGetSubTaskById(HttpExchange exchange, String path) throws IOException {
-        try {
-            String idStr = path.substring(10); // "/subtasks/".length() = 10
-            int id = Integer.parseInt(idStr);
-            SubTask subTask = taskManager.findSubTaskById(id);
-            if (subTask != null) {
-                sendSuccess(exchange, gson.toJson(subTask));
-            } else {
-                sendNotFound(exchange);
-            }
-        } catch (NumberFormatException e) {
-            sendBadRequest(exchange, "Invalid subtask ID format");
-        } catch (Exception e) {
-            sendInternalServerError(exchange);
-        }
+
     }
 
     private void sendBadRequest(HttpExchange exchange, String invalidSubtaskIdFormat) {
@@ -147,26 +145,46 @@ public class SubtasksHandler extends BaseHttpHandler {
     private void handlePostSubTask(HttpExchange exchange) throws IOException {
         try {
             String body = readRequestBody(exchange);
+            System.out.println("Subtask JSON: " + body);
+
             SubTask subTask = gson.fromJson(body, SubTask.class);
+            System.out.println("Parsed subtask - ID: " + subTask.getId() + ", Name: " + subTask.getName() + ", EpicId: " + subTask.getEpicId());
+
+            // Проверяем существование эпика
+            if (subTask.getEpicId() > 0) {
+                System.out.println("Checking if epic exists: " + subTask.getEpicId());
+                // Здесь должна быть проверка существования эпика
+            }
 
             if (subTask.getId() == 0) {
+                System.out.println("Creating new subtask");
                 taskManager.addSubTask(subTask);
-                sendCreated(exchange, gson.toJson(subTask));
+                String responseJson = gson.toJson(subTask);
+                System.out.println("Created subtask with ID: " + subTask.getId());
+                sendCreated(exchange, responseJson);
             } else {
+                System.out.println("Updating existing subtask");
                 taskManager.updateSubTask(subTask);
                 sendSuccess(exchange, gson.toJson(subTask));
             }
         } catch (JsonSyntaxException e) {
+            System.err.println("Invalid JSON format: " + e.getMessage());
             sendBadRequest(exchange, "Invalid JSON format");
         } catch (IllegalStateException e) {
+            System.err.println("Task overlap: " + e.getMessage());
             sendHasInteractions(exchange);
+        } catch (Exception e) {
+            System.err.println("Error creating subtask: " + e.getMessage());
+            e.printStackTrace();
+            sendInternalServerError(exchange);
         }
     }
 
     private void handleDeleteSubTaskById(HttpExchange exchange, String path) throws IOException {
         try {
-            String idStr = path.substring(10); // "/subtasks/".length() = 10
+            String idStr = path.substring(10);
             int id = Integer.parseInt(idStr);
+
             SubTask subTask = taskManager.findSubTaskById(id);
             if (subTask != null) {
                 taskManager.deleteSubTask(id);

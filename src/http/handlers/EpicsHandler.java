@@ -1,59 +1,3 @@
-/*package http.handlers;
-
-import com.sun.net.httpserver.HttpExchange;
-import manager.TaskManager;
-import task.Epic;
-import http.HttpMethod;
-
-import java.io.IOException;
-
-public class EpicHandler extends BaseHttpHandler {
-
-    public EpicHandler(TaskManager taskManager) {
-        super(taskManager);
-    }
-
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        try {
-            String path = exchange.getRequestURI().getPath();
-            HttpMethod httpMethod;
-
-            try {
-                httpMethod = HttpMethod.valueOf(exchange.getRequestMethod());
-            } catch (IllegalArgumentException e) {
-                sendNotFound(exchange);
-                return;
-            }
-
-            switch (httpMethod) {
-                case GET:
-                    handleGetRequest(exchange, path, "/epics",
-                            v -> taskManager.getEpics(),
-                            taskManager::getEpic);
-                    break;
-                case POST:
-                    handlePostRequest(exchange, Epic.class,
-                            taskManager::addEpic,
-                            taskManager::updateEpic,
-                            epic -> epic.getId() == 0);
-                    break;
-                case DELETE:
-                    handleDeleteRequest(exchange, path, "/epics",
-                            taskManager::clearEpics,
-                            taskManager::getEpic,
-                            taskManager::deleteEpic);
-                    break;
-                default:
-                    sendNotFound(exchange);
-            }
-        } catch (Exception e) {
-            sendInternalServerError(exchange);
-        }
-    }
-
-}*/
-
 package http.handlers;
 
 import com.google.gson.JsonSyntaxException;
@@ -142,7 +86,7 @@ public class EpicsHandler extends BaseHttpHandler {
 
     private void handleGetEpicById(HttpExchange exchange, String path) throws IOException {
         try {
-            String idStr = path.substring(7); // "/epics/".length() = 7
+            String idStr = path.substring(7);
             int id = Integer.parseInt(idStr);
             Epic epic = taskManager.findEpicById(id);
             if (epic != null) {
@@ -163,7 +107,7 @@ public class EpicsHandler extends BaseHttpHandler {
     private void handleGetEpicSubTasks(HttpExchange exchange, String path) throws IOException {
         try {
             // Из пути "/epics/123/subtasks" извлекаем "123"
-            String idStr = path.substring(7, path.length() - 9); // "/epics/".length() = 7, "/subtasks".length() = 9
+            String idStr = path.substring(7, path.length() - 9);
             int epicId = Integer.parseInt(idStr);
             Epic epic = taskManager.findEpicById(epicId);
             if (epic != null) {
@@ -198,7 +142,7 @@ public class EpicsHandler extends BaseHttpHandler {
 
     private void handleDeleteEpicById(HttpExchange exchange, String path) throws IOException {
         try {
-            String idStr = path.substring(7); // "/epics/".length() = 7
+            String idStr = path.substring(7);
             int id = Integer.parseInt(idStr);
             Epic epic = taskManager.findEpicById(id);
             if (epic != null) {

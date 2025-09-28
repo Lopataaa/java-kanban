@@ -1,5 +1,6 @@
 package http;
 
+import org.junit.jupiter.api.DisplayName;
 import task.TaskStatus;
 import org.junit.jupiter.api.Test;
 import task.Task;
@@ -16,14 +17,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class HttpPriorityTest extends HttpTasksTest {
 
     @Test
-    void testGetPrioritizedTasks() throws IOException, InterruptedException {
-        // Создаем задачи с временем (используем конструктор с временными параметрами)
+    @DisplayName("Получение приоритетных задач")
+    void test_Get_Prioritized_Tasks() throws IOException, InterruptedException {
+        // Создание задачи с временем
         Task task1 = new Task(0, "Task Early", "Early task",
                 LocalDateTime.now().plusHours(1), Duration.ofMinutes(60));
         Task task2 = new Task(0, "Task Late", "Late task",
                 LocalDateTime.now().plusHours(3), Duration.ofMinutes(30));
 
-        // Устанавливаем статусы, так как конструктор не принимает статус
         task1.setStatus(TaskStatus.NEW);
         task2.setStatus(TaskStatus.IN_PROGRESS);
 
@@ -47,7 +48,8 @@ class HttpPriorityTest extends HttpTasksTest {
     }
 
     @Test
-    void testGetEmptyPrioritizedTasks() throws IOException, InterruptedException {
+    @DisplayName("Получение пустого списка из приоритетных задач")
+    void testGet_Empty_Prioritized_Tasks() throws IOException, InterruptedException {
         HttpRequest priorityRequest = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8080/prioritized"))
                 .GET()
@@ -62,8 +64,9 @@ class HttpPriorityTest extends HttpTasksTest {
     }
 
     @Test
-    void testTasksWithoutTimeNotInPrioritized() throws IOException, InterruptedException {
-        // Создаем задачу без времени (бессрочная)
+    @DisplayName("Задачи без времени не попадут в приоритетный список")
+    void testTasks_Without_TimeNot_InPrioritized() throws IOException, InterruptedException {
+        // Создание задачи без времени
         Task taskWithoutTime = new Task(0, "No Time Task", "Task without time");
         taskWithoutTime.setStatus(TaskStatus.NEW);
 
@@ -80,7 +83,6 @@ class HttpPriorityTest extends HttpTasksTest {
         Task[] prioritizedTasks = gson.fromJson(priorityResponse.body(), Task[].class);
         assertNotNull(prioritizedTasks);
 
-        // Задачи без времени не должны попадать в приоритетный список
         assertEquals(0, prioritizedTasks.length,
                 "Задачи без времени не должны быть в приоритетном списке");
     }

@@ -1,7 +1,6 @@
 package http;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 import http.handlers.*;
 import manager.Managers;
@@ -16,8 +15,9 @@ public class HttpTaskServer {
     private TaskManager taskManager;
     private static final String SERVER_ADDRESS = "127.0.0.1";
     private static final int PORT = 8080;
+    private static final Gson gson = new Gson();
 
-    public HttpTaskServer() throws IOException { // зачем InterruptedException - убрала
+    public HttpTaskServer() throws IOException {
         this.taskManager = Managers.getDefault();
         this.server = HttpServer.create(new InetSocketAddress(SERVER_ADDRESS, PORT), 1);
 
@@ -34,7 +34,7 @@ public class HttpTaskServer {
     }
 
     public void stop() {
-        server.stop(0);// может 0??? Была 1
+        server.stop(0);
         System.out.println("HTTP Task Server stopped");
     }
 
@@ -47,5 +47,9 @@ public class HttpTaskServer {
         } catch (IOException e) {
             System.err.println("Failed to start server: " + e.getMessage());
         }
+    }
+
+    public static Gson getGson() {
+        return gson;
     }
 }
