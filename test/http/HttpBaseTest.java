@@ -187,11 +187,19 @@ public class HttpBaseTest extends HttpTasksTest {
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(taskJson))
                 .build();
-        client.send(postRequest, HttpResponse.BodyHandlers.ofString());
+
+        HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, postResponse.statusCode());
+
+        // ✅ ИЗВЛЕКАЕМ РЕАЛЬНЫЙ ID ИЗ ОТВЕТА
+        Task createdTask = gson.fromJson(postResponse.body(), Task.class);
+        int actualTaskId = createdTask.getId();
+
+        System.out.println("Created task with ID: " + actualTaskId); // Для отладки
 
         // Удаляем задачу
         HttpRequest deleteRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/tasks/1"))
+                .uri(URI.create(BASE_URL + "/tasks/" + actualTaskId))
                 .DELETE()
                 .build();
 

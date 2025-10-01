@@ -15,7 +15,7 @@ public class HttpTaskServer {
     private TaskManager taskManager;
     private static final String SERVER_ADDRESS = "127.0.0.1";
     private static final int PORT = 0;
-    private static final Gson gson = new Gson();
+    private static final Gson gson = Managers.getGson();
 
     private final int actualPort;
 

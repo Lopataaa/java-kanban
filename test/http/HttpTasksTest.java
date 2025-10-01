@@ -20,7 +20,7 @@ public abstract class HttpTasksTest {
 
     // Поля — protected static, чтобы наследники имели доступ
     protected static HttpClient client;
-    protected static Gson gson;
+    protected static Gson gson = HttpTaskServer.getGson();;
     protected static String BASE_URL;
     private static HttpTaskServer server;
 
@@ -31,6 +31,18 @@ public abstract class HttpTasksTest {
         server = new HttpTaskServer();
         server.start();
         BASE_URL = "http://localhost:" + server.getPort();
+    }
+
+    @BeforeAll
+    public static void setUpAll() throws IOException {
+        server = new HttpTaskServer();
+        server.start();
+
+        // Получаем реальный порт и формируем BASE_URL
+        int port = server.getPort();
+        BASE_URL = "http://localhost:" + port;
+
+        client = HttpClient.newHttpClient();
     }
 
     @AfterAll
