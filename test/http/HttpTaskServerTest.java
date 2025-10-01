@@ -10,12 +10,12 @@ import java.io.IOException;
 import java.net.http.HttpClient;
 
 class HttpTaskServerTest {
+    private static final String BASE_URL = "http://localhost:8080";
+
     private HttpTaskServer server;
     private TaskManager taskManager;
     private HttpClient client;
     private Gson gson;
-
-    private final String BASE_URL = "http://localhost:8080";
 
     @BeforeEach
     void setUp() throws IOException {

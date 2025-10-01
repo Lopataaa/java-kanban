@@ -6,8 +6,13 @@ import manager.TaskManager;
 import task.Task;
 
 import java.io.IOException;
+import java.util.List;
 
 public class TasksHandler extends BaseHttpHandler {
+    private static final String PATH_TASKS = "/tasks";
+    private static final String METHOD_GET = "GET";
+    private static final String METHOD_POST = "POST";
+    private static final String METHOD_DELETE = "DELETE";
 
     public TasksHandler(TaskManager taskManager) {
         super(taskManager);
@@ -15,78 +20,76 @@ public class TasksHandler extends BaseHttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        String path = exchange.getRequestURI().getPath();
+        String method = exchange.getRequestMethod();
+
         try {
-            String path = exchange.getRequestURI().getPath();
-            String method = exchange.getRequestMethod();
-
-            System.out.println("Received " + method + " request for path: " + path);
-
             switch (method) {
-                case "GET":
-                    if (path.equals("/tasks")) {
-                        System.out.println("Handling GET /tasks");
-                        handleGetAllTasks(exchange);
-                    } else if (path.startsWith("/tasks/")) {
-                        System.out.println("Handling GET /tasks/{id}");
-                        handleGetTaskById(exchange, path);
-                    } else {
-                        System.out.println("Path not found: " + path);
-                        sendNotFound(exchange);
-                    }
+                case METHOD_GET:
+                    handleGetRequest(exchange, path);
                     break;
-
-                case "POST":
-                    if (path.equals("/tasks")) {
-                        System.out.println("Handling POST /tasks");
-                        handlePostTask(exchange);
-                    } else {
-                        sendNotFound(exchange);
-                    }
+                case METHOD_POST:
+                    handlePostRequest(exchange, path);
                     break;
-
-                case "DELETE":
-                    if (path.startsWith("/tasks/")) {
-                        System.out.println("Handling DELETE /tasks/{id}");
-                        handleDeleteTaskById(exchange, path);
-                    } else if (path.equals("/tasks")) {
-                        System.out.println("Handling DELETE /tasks");
-                        handleDeleteAllTasks(exchange);
-                    } else {
-                        sendNotFound(exchange);
-                    }
+                case METHOD_DELETE:
+                    handleDeleteRequest(exchange, path);
                     break;
-
                 default:
                     sendNotFound(exchange);
             }
         } catch (Exception e) {
-            System.err.println("Error handling request: " + e.getMessage());
             sendInternalServerError(exchange);
+        }
+    }
+
+    private void handleGetRequest(HttpExchange exchange, String path) throws IOException {
+        if (path.equals(PATH_TASKS)) {
+            handleGetAllTasks(exchange);
+        } else if (path.startsWith(PATH_TASKS + "/")) {
+            handleGetTaskById(exchange, path);
+        } else {
+            sendNotFound(exchange);
+        }
+    }
+
+    private void handlePostRequest(HttpExchange exchange, String path) throws IOException {
+        if (path.equals(PATH_TASKS)) {
+            handlePostTask(exchange);
+        } else {
+            sendNotFound(exchange);
+        }
+    }
+
+    private void handleDeleteRequest(HttpExchange exchange, String path) throws IOException {
+        if (path.startsWith(PATH_TASKS + "/")) {
+            handleDeleteTaskById(exchange, path);
+        } else if (path.equals(PATH_TASKS)) {
+            handleDeleteAllTasks(exchange);
+        } else {
+            sendNotFound(exchange);
         }
     }
 
     private void handleGetAllTasks(HttpExchange exchange) throws IOException {
-        sendSuccess(exchange, gson.toJson(taskManager.getTasks()));
+        List<Task> tasks = taskManager.getTasks();
+        sendSuccess(exchange, gson.toJson(tasks));
     }
 
     private void handleGetTaskById(HttpExchange exchange, String path) throws IOException {
-        try {
-            String idStr = path.substring(7);
-            int id = Integer.parseInt(idStr);
-            Task task = taskManager.findTaskById(id);
-            if (task != null) {
-                sendSuccess(exchange, gson.toJson(task));
-            } else {
-                sendNotFound(exchange);
-            }
-        } catch (NumberFormatException e) {
-            sendBadRequest(exchange, "Invalid task ID format");
-        } catch (Exception e) {
-            sendInternalServerError(exchange);
-        }
-    }
+        String idStr = path.substring(PATH_TASKS.length() + 1);
+        int id = parsePathId(idStr);
 
-    private void sendBadRequest(HttpExchange exchange, String invalidTaskIdFormat) {
+        if (id == -1) {
+            sendBadRequest(exchange);
+            return;
+        }
+
+        Task task = taskManager.findTaskById(id);
+        if (task != null) {
+            sendSuccess(exchange, gson.toJson(task));
+        } else {
+            sendNotFound(exchange);
+        }
     }
 
     private void handlePostTask(HttpExchange exchange) throws IOException {
@@ -102,25 +105,27 @@ public class TasksHandler extends BaseHttpHandler {
                 sendSuccess(exchange, gson.toJson(task));
             }
         } catch (JsonSyntaxException e) {
-            sendBadRequest(exchange, "Invalid JSON format");
+            sendBadRequest(exchange);
         } catch (IllegalStateException e) {
             sendHasInteractions(exchange);
         }
     }
 
     private void handleDeleteTaskById(HttpExchange exchange, String path) throws IOException {
-        try {
-            String idStr = path.substring(7);
-            int id = Integer.parseInt(idStr);
-            Task task = taskManager.findTaskById(id);
-            if (task != null) {
-                taskManager.deleteTask(id);
-                sendSuccess(exchange, "Task deleted");
-            } else {
-                sendNotFound(exchange);
-            }
-        } catch (NumberFormatException e) {
-            sendBadRequest(exchange, "Invalid task ID format");
+        String idStr = path.substring(PATH_TASKS.length() + 1);
+        int id = parsePathId(idStr);
+
+        if (id == -1) {
+            sendBadRequest(exchange);
+            return;
+        }
+
+        Task task = taskManager.findTaskById(id);
+        if (task != null) {
+            taskManager.deleteTask(id);
+            sendSuccess(exchange, "Task deleted");
+        } else {
+            sendNotFound(exchange);
         }
     }
 

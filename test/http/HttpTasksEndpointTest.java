@@ -15,122 +15,140 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
-//Тесты для /task
 public class HttpTasksEndpointTest extends HttpTasksTest{
+    private static final String TASK_NAME_1 = "Test 2";
+    private static final String TASK_DESCRIPTION_1 = "Testing task 2";
+    private static final String TASK_NAME_2 = "Test Task";
+    private static final String TASK_DESCRIPTION_2 = "Test Description";
+    private static final String TASK_NAME_3 = "Task 1";
+    private static final String TASK_DESCRIPTION_3 = "Description 1";
+    private static final String TASK_NAME_4 = "Task 2";
+    private static final String TASK_DESCRIPTION_4 = "Description 2";
+    private static final String PATH_TASKS = "/tasks";
+    private static final String CONTENT_TYPE_JSON = "application/json";
+    private static final int DURATION_MINUTES_5 = 5;
+    private static final int DURATION_MINUTES_10 = 10;
+    private static final int HOURS_OFFSET_1 = 1;
+    private static final int STATUS_OK = 200;
+    private static final int STATUS_CREATED = 201;
+    private static final int EXPECTED_TASKS_COUNT = 2;
 
     private final Gson gson = Managers.getGson();
 
     @Test
     @DisplayName("Добавление задачи")
     public void testAddTask() throws IOException, InterruptedException {
-
-        Task task = new Task(0, "Test 2", "Testing task 2",
-                LocalDateTime.now(), Duration.ofMinutes(5));
+        // Given
+        Task task = new Task(0, TASK_NAME_1, TASK_DESCRIPTION_1,
+                LocalDateTime.now(), Duration.ofMinutes(DURATION_MINUTES_5));
         task.setStatus(TaskStatus.NEW);
 
         String taskJson = gson.toJson(task);
 
+        // When
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/tasks"))
-                .header("Content-Type", "application/json")
+                .uri(URI.create(BASE_URL + PATH_TASKS))
+                .header("Content-Type", CONTENT_TYPE_JSON)
                 .POST(HttpRequest.BodyPublishers.ofString(taskJson))
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Неверный статус код при создании задачи");
 
-        // Проверяем через GET запрос, а не через менеджер
+        // Then
+        assertEquals(STATUS_CREATED, response.statusCode(), "Неверный статус код при создании задачи");
+
+        // When
         HttpRequest getRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/tasks"))
+                .uri(URI.create(BASE_URL + PATH_TASKS))
                 .GET()
                 .build();
         HttpResponse<String> getResponse = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
-        assertTrue(getResponse.body().contains("Test 2"));
+
+        // Then
+        assertTrue(getResponse.body().contains(TASK_NAME_1));
     }
 
     @Test
     @DisplayName("Получение задачи по ID")
     public void testGetTask() throws IOException, InterruptedException {
-        // Создаем задачу
-        Task task = new Task(0, "Test Task", "Test Description",
-                LocalDateTime.now(), Duration.ofMinutes(10));
+        // Given
+        Task task = new Task(0, TASK_NAME_2, TASK_DESCRIPTION_2,
+                LocalDateTime.now(), Duration.ofMinutes(DURATION_MINUTES_10));
         task.setStatus(TaskStatus.NEW);
 
         String taskJson = gson.toJson(task);
 
         HttpRequest postRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/tasks"))
-                .header("Content-Type", "application/json")
+                .uri(URI.create(BASE_URL + PATH_TASKS))
+                .header("Content-Type", CONTENT_TYPE_JSON)
                 .POST(HttpRequest.BodyPublishers.ofString(taskJson))
                 .build();
 
         HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, postResponse.statusCode(), "Не удалось создать задачу");
+        assertEquals(STATUS_CREATED, postResponse.statusCode(), "Не удалось создать задачу");
 
-        // Получаем ID созданной задачи из ответа
         Task createdTask = gson.fromJson(postResponse.body(), Task.class);
         int taskId = createdTask.getId();
 
-        // Получаем задачу по ID
+        // When
         HttpRequest getRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/tasks/" + taskId))
+                .uri(URI.create(BASE_URL + PATH_TASKS + "/" + taskId))
                 .GET()
                 .build();
 
         HttpResponse<String> getResponse = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, getResponse.statusCode(), "Неверный статус код при получении задачи");
 
-        // Проверяем полученную задачу
+        // Then
+        assertEquals(STATUS_OK, getResponse.statusCode(), "Неверный статус код при получении задачи");
+
         Task responseTask = gson.fromJson(getResponse.body(), Task.class);
         assertNotNull(responseTask, "Задача не вернулась");
         assertEquals(taskId, responseTask.getId(), "Неверный ID задачи");
-        assertEquals("Test Task", responseTask.getName(), "Неверное имя задачи");
-        assertEquals("Test Description", responseTask.getDescription(), "Неверное описание задачи");
+        assertEquals(TASK_NAME_2, responseTask.getName(), "Неверное имя задачи");
+        assertEquals(TASK_DESCRIPTION_2, responseTask.getDescription(), "Неверное описание задачи");
         assertEquals(TaskStatus.NEW, responseTask.getStatus(), "Неверный статус задачи");
     }
 
     @Test
     @DisplayName("Получение всех задач")
     public void testGet_AllTasks() throws IOException, InterruptedException {
-        // Создаем первую задачу
-        Task task1 = new Task(0, "Task 1", "Description 1",
-                LocalDateTime.now(), Duration.ofMinutes(5));
+        // Given
+        Task task1 = new Task(0, TASK_NAME_3, TASK_DESCRIPTION_3,
+                LocalDateTime.now(), Duration.ofMinutes(DURATION_MINUTES_5));
         task1.setStatus(TaskStatus.NEW);
 
-        // Создаем вторую задачу
-        Task task2 = new Task(0, "Task 2", "Description 2",
-                LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
+        Task task2 = new Task(0, TASK_NAME_4, TASK_DESCRIPTION_4,
+                LocalDateTime.now().plusHours(HOURS_OFFSET_1), Duration.ofMinutes(DURATION_MINUTES_10));
         task2.setStatus(TaskStatus.IN_PROGRESS);
 
-        // Создаем задачи через HTTP
         createTask(gson.toJson(task1));
         createTask(gson.toJson(task2));
 
-        // Получаем все задачи
+        // When
         HttpRequest getRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/tasks"))
+                .uri(URI.create(BASE_URL + PATH_TASKS))
                 .GET()
                 .build();
 
         HttpResponse<String> response = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Неверный статус код при получении всех задач");
 
-        // Проверяем список задач
+        // Then
+        assertEquals(STATUS_OK, response.statusCode(), "Неверный статус код при получении всех задач");
+
         Task[] tasks = gson.fromJson(response.body(), Task[].class);
         assertNotNull(tasks, "Задачи не возвращаются");
-        assertEquals(2, tasks.length, "Некорректное количество задач");
+        assertEquals(EXPECTED_TASKS_COUNT, tasks.length, "Некорректное количество задач");
 
-        // Проверяем что обе задачи присутствуют
         boolean foundTask1 = false;
         boolean foundTask2 = false;
         for (Task task : tasks) {
-            if ("Task 1".equals(task.getName())) {
+            if (TASK_NAME_3.equals(task.getName())) {
                 foundTask1 = true;
-                assertEquals("Description 1", task.getDescription(), "Неверное описание задачи 1");
+                assertEquals(TASK_DESCRIPTION_3, task.getDescription(), "Неверное описание задачи 1");
             }
-            if ("Task 2".equals(task.getName())) {
+            if (TASK_NAME_4.equals(task.getName())) {
                 foundTask2 = true;
-                assertEquals("Description 2", task.getDescription(), "Неверное описание задачи 2");
+                assertEquals(TASK_DESCRIPTION_4, task.getDescription(), "Неверное описание задачи 2");
             }
         }
         assertTrue(foundTask1, "Задача 1 не найдена в списке");
@@ -139,8 +157,8 @@ public class HttpTasksEndpointTest extends HttpTasksTest{
 
     private HttpResponse<String> createTask(String taskJson) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/tasks"))
-                .header("Content-Type", "application/json")
+                .uri(URI.create(BASE_URL + PATH_TASKS))
+                .header("Content-Type", CONTENT_TYPE_JSON)
                 .POST(HttpRequest.BodyPublishers.ofString(taskJson))
                 .build();
         return client.send(request, HttpResponse.BodyHandlers.ofString());

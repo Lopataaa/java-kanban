@@ -6,29 +6,38 @@ import http.handlers.*;
 import manager.Managers;
 import manager.TaskManager;
 
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
-    private HttpServer server; // убрала final
-    private TaskManager taskManager;
     private static final String SERVER_ADDRESS = "127.0.0.1";
     private static final int PORT = 0;
-    private static final Gson gson = Managers.getGson();
+    private static final Gson GSON = Managers.getGson();
 
+    private static final String PATH_TASKS = "/tasks";
+    private static final String PATH_SUBTASKS = "/subtasks";
+    private static final String PATH_EPICS = "/epics";
+    private static final String PATH_HISTORY = "/history";
+    private static final String PATH_PRIORITIZED = "/prioritized";
+
+    private HttpServer server;
+    private TaskManager taskManager;
     private final int actualPort;
 
     public HttpTaskServer() throws IOException {
         this.taskManager = Managers.getDefault();
         this.server = HttpServer.create(new InetSocketAddress(SERVER_ADDRESS, PORT), 1);
-        this.actualPort = this.server.getAddress().getPort(); // - запоминаем реальный порт
+        this.actualPort = this.server.getAddress().getPort();
 
-        server.createContext("/tasks", new TasksHandler(taskManager));
-        server.createContext("/subtasks", new SubtasksHandler(taskManager));
-        server.createContext("/epics", new EpicsHandler(taskManager));
-        server.createContext("/history", new HistoryHandler(taskManager));
-        server.createContext("/prioritized", new PrioritizedHandler(taskManager));
+        registerHandlers();
+    }
+
+    private void registerHandlers() {
+        server.createContext(PATH_TASKS, new TasksHandler(taskManager));
+        server.createContext(PATH_SUBTASKS, new SubtasksHandler(taskManager));
+        server.createContext(PATH_EPICS, new EpicsHandler(taskManager));
+        server.createContext(PATH_HISTORY, new HistoryHandler(taskManager));
+        server.createContext(PATH_PRIORITIZED, new PrioritizedHandler(taskManager));
     }
 
     public int getPort() {
@@ -37,12 +46,10 @@ public class HttpTaskServer {
 
     public void start() {
         server.start();
-        System.out.println("HTTP Task Server started on " + server.getAddress());
     }
 
     public void stop() {
         server.stop(0);
-        System.out.println("HTTP Task Server stopped");
     }
 
     public static void main(String[] args) {
@@ -57,6 +64,6 @@ public class HttpTaskServer {
     }
 
     public static Gson getGson() {
-        return gson;
+        return GSON;
     }
 }

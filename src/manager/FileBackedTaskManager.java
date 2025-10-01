@@ -15,26 +15,32 @@ import task.Task;
 import task.Epic;
 import task.TaskType;
 
-// Привет! Спасибо за подробное ревью, сразу более наглядными становятся замечания.
-
 public class FileBackedTaskManager extends InMemoryTaskManager {
+    private static final String CSV_HEADER = "id,type,name,description,status,epic,startTime,duration";
+    private static final String CSV_DELIMITER = ",";
+    private static final String NEW_LINE = "\n";
+    private static final String EMPTY_VALUE = "";
+
     private final String filePath;
 
     public FileBackedTaskManager(String filePath) {
-        this.filePath = Objects.requireNonNull(filePath);
+        this.filePath = Objects.requireNonNull(filePath, "File path must not be null");
     }
 
-    private String toCsv(Task t) {
-        String epicCol = (t instanceof SubTask st) ? String.valueOf(st.getEpicId()) : "";
-        return String.join(",",
-                String.valueOf(t.getId()),
-                t.getType().name(),
-                t.getName(),
-                t.getDescription(),
-                t.getStatus().name(),
-                epicCol,
-                t.getStartTime() != null ? t.getStartTime().toString() : "",  // добавлен startTime
-                t.getDuration() != null ? t.getDuration().toString() : ""     // добавлен duration
+    private String toCsv(Task task) {
+        String epicColumn = (task instanceof SubTask subTask) ? String.valueOf(subTask.getEpicId()) : EMPTY_VALUE;
+        String startTime = task.getStartTime() != null ? task.getStartTime().toString() : EMPTY_VALUE;
+        String duration = task.getDuration() != null ? task.getDuration().toString() : EMPTY_VALUE;
+
+        return String.join(CSV_DELIMITER,
+                String.valueOf(task.getId()),
+                task.getType().name(),
+                task.getName(),
+                task.getDescription(),
+                task.getStatus().name(),
+                epicColumn,
+                startTime,
+                duration
         );
     }
 
@@ -47,23 +53,22 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private void saveFiltered(Predicate<Task> filter) {
-        try (FileWriter w = new FileWriter(filePath)) {
-            w.write("id,type,name,description,status,epic,startTime,duration"); // обновлённый заголовок
-            w.write('\n');
+        try (FileWriter writer = new FileWriter(filePath)) {
+            writer.write(CSV_HEADER);
+            writer.write(NEW_LINE);
 
-            // объединяем все коллекции в один поток
-            java.util.stream.Stream<Task> all = Stream.of(
+            Stream<Task> allTasks = Stream.of(
                     getTasks().stream(),
                     getEpics().stream(),
                     getSubTasks().stream()
-            ).flatMap(s -> s);
+            ).flatMap(stream -> stream);
 
-            all.filter(filter)
+            allTasks.filter(filter)
                     .map(this::toCsv)
                     .forEach(line -> {
                         try {
-                            w.write(line);
-                            w.write('\n');
+                            writer.write(line);
+                            writer.write(NEW_LINE);
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
@@ -95,26 +100,29 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return id;
     }
 
-    //Метод будет восстанавливать данные менеджера из файла при запуске программы
     public static FileBackedTaskManager loadFromFile(File file) {
-        FileBackedTaskManager manager = new FileBackedTaskManager(file.getName());
+        FileBackedTaskManager manager = new FileBackedTaskManager(file.getAbsolutePath());
         try {
             String content = Files.readString(file.toPath());
-            String[] lines = content.split("\n");
+            String[] lines = content.split(NEW_LINE);
+
             for (int i = 1; i < lines.length; i++) {
-                String line = lines[i];
-                Task task = Task.fromString(line);
-                if (task instanceof Epic) {
-                    manager.addEpic((Epic) task);
-                } else if (task instanceof SubTask) {
-                    manager.addSubTask((SubTask) task);
-                } else {
-                    manager.addTask(task);
-                }
+                Task task = Task.fromString(lines[i]);
+                addTaskToManager(manager, task);
             }
         } catch (IOException e) {
             throw new RuntimeException("Ошибка загрузки данных", e);
         }
         return manager;
+    }
+
+    private static void addTaskToManager(FileBackedTaskManager manager, Task task) {
+        if (task instanceof Epic) {
+            manager.addEpic((Epic) task);
+        } else if (task instanceof SubTask) {
+            manager.addSubTask((SubTask) task);
+        } else {
+            manager.addTask(task);
+        }
     }
 }

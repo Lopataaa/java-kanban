@@ -1,11 +1,8 @@
 package http;
 
 import com.google.gson.Gson;
-import manager.InMemoryTaskManager;
 import manager.Managers;
-import manager.TaskManager;
 import org.junit.jupiter.api.*;
-import task.Task;
 
 import java.io.IOException;
 import java.net.URI;
@@ -13,14 +10,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-//Базовый абстрактный класс
 public abstract class HttpTasksTest {
+    private static final String PATH_TASKS = "/tasks";
+    private static final String PATH_SUBTASKS = "/subtasks";
+    private static final String PATH_EPICS = "/epics";
 
-    // Поля — protected static, чтобы наследники имели доступ
     protected static HttpClient client;
-    protected static Gson gson = HttpTaskServer.getGson();;
+    protected static Gson gson = HttpTaskServer.getGson();
     protected static String BASE_URL;
     private static HttpTaskServer server;
 
@@ -38,7 +34,6 @@ public abstract class HttpTasksTest {
         server = new HttpTaskServer();
         server.start();
 
-        // Получаем реальный порт и формируем BASE_URL
         int port = server.getPort();
         BASE_URL = "http://localhost:" + port;
 
@@ -54,24 +49,23 @@ public abstract class HttpTasksTest {
 
     @BeforeEach
     void clearAllData() throws IOException, InterruptedException {
-        // Очистка через HTTP — чтобы не зависеть от внутреннего состояния
         client.send(
                 HttpRequest.newBuilder()
-                        .uri(URI.create(BASE_URL + "/tasks"))
+                        .uri(URI.create(BASE_URL + PATH_TASKS))
                         .DELETE()
                         .build(),
                 HttpResponse.BodyHandlers.discarding()
         );
         client.send(
                 HttpRequest.newBuilder()
-                        .uri(URI.create(BASE_URL + "/subtasks"))
+                        .uri(URI.create(BASE_URL + PATH_SUBTASKS))
                         .DELETE()
                         .build(),
                 HttpResponse.BodyHandlers.discarding()
         );
         client.send(
                 HttpRequest.newBuilder()
-                        .uri(URI.create(BASE_URL + "/epics"))
+                        .uri(URI.create(BASE_URL + PATH_EPICS))
                         .DELETE()
                         .build(),
                 HttpResponse.BodyHandlers.discarding()

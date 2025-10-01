@@ -6,8 +6,7 @@ import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
     final Map<Integer, Node> nodeMap = new HashMap<>();
-    private Node head = null; // оставила это поле private, т.к. после final всё посыпалось и эти ошибки
-    // исправить не удалось
+    private Node head = null;
     private Node tail;
 
     @Override
@@ -15,10 +14,10 @@ public class InMemoryHistoryManager implements HistoryManager {
         return getTasks();
     }
 
-    @Override // переписала метод,иначе падал тест на проверку дублирования задач
+    @Override
     public void add(Task task) {
-        linkLast(task); // добавление задачи в конец списка
-        nodeMap.put(task.getId(), tail); // обновление
+        linkLast(task);
+        nodeMap.put(task.getId(), tail);
     }
 
     @Override
@@ -40,7 +39,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    private void linkLast(Task task) { // добавить задачу в конец списка
+    private void linkLast(Task task) {
         Node newNode = new Node(task);
         if (tail == null) {
             tail = newNode;
@@ -53,7 +52,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         nodeMap.put(task.getId(), newNode);
     }
 
-    private List<Task> getTasks() { // собирать все задачи из списка в обычный ArrayList
+    private List<Task> getTasks() {
         List<Task> tasks = new ArrayList<>();
 
         Node currentNode = head;

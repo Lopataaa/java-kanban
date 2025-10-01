@@ -10,6 +10,11 @@ import java.io.IOException;
 import java.util.List;
 
 public class EpicsHandler extends BaseHttpHandler {
+    private static final String PATH_EPICS = "/epics";
+    private static final String PATH_SUBTASKS = "/subtasks";
+    private static final String METHOD_GET = "GET";
+    private static final String METHOD_POST = "POST";
+    private static final String METHOD_DELETE = "DELETE";
 
     public EpicsHandler(TaskManager taskManager) {
         super(taskManager);
@@ -17,109 +22,95 @@ public class EpicsHandler extends BaseHttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        String path = exchange.getRequestURI().getPath();
+        String method = exchange.getRequestMethod();
+
         try {
-            String path = exchange.getRequestURI().getPath();
-            String method = exchange.getRequestMethod();
-
-            System.out.println("Received " + method + " request for path: " + path);
-
             switch (method) {
-                case "GET":
-                    if (path.equals("/epics")) {
-                        System.out.println("Handling GET /epics");
-                        handleGetAllEpics(exchange);
-                    } else if (path.startsWith("/epics/") && path.endsWith("/subtasks")) {
-                        System.out.println("Handling GET /epics/{id}/subtasks");
-                        handleGetEpicSubTasks(exchange, path);
-                    } else if (path.startsWith("/epics/")) {
-                        System.out.println("Handling GET /epics/{id}");
-                        handleGetEpicById(exchange, path);
-                    } else {
-                        System.out.println("Path not found: " + path);
-                        sendNotFound(exchange);
-                    }
+                case METHOD_GET:
+                    handleGetRequest(exchange, path);
                     break;
-
-                case "POST":
-                    if (path.equals("/epics")) {
-                        System.out.println("Handling POST /epics");
-                        handlePostEpic(exchange);
-                    } else {
-                        sendNotFound(exchange);
-                    }
+                case METHOD_POST:
+                    handlePostRequest(exchange, path);
                     break;
-
-                case "DELETE":
-                    if (path.startsWith("/epics/")) {
-                        System.out.println("Handling DELETE /epics/{id}");
-                        handleDeleteEpicById(exchange, path);
-                    } else if (path.equals("/epics")) {
-                        System.out.println("Handling DELETE /epics");
-                        handleDeleteAllEpics(exchange);
-                    } else {
-                        sendNotFound(exchange);
-                    }
+                case METHOD_DELETE:
+                    handleDeleteRequest(exchange, path);
                     break;
-
                 default:
                     sendNotFound(exchange);
             }
         } catch (Exception e) {
-            System.err.println("Error handling request: " + e.getMessage());
             sendInternalServerError(exchange);
+        }
+    }
+
+    private void handleGetRequest(HttpExchange exchange, String path) throws IOException {
+        if (path.equals(PATH_EPICS)) {
+            handleGetAllEpics(exchange);
+        } else if (path.startsWith(PATH_EPICS + "/") && path.endsWith(PATH_SUBTASKS)) {
+            handleGetEpicSubTasks(exchange, path);
+        } else if (path.startsWith(PATH_EPICS + "/")) {
+            handleGetEpicById(exchange, path);
+        } else {
+            sendNotFound(exchange);
+        }
+    }
+
+    private void handlePostRequest(HttpExchange exchange, String path) throws IOException {
+        if (path.equals(PATH_EPICS)) {
+            handlePostEpic(exchange);
+        } else {
+            sendNotFound(exchange);
+        }
+    }
+
+    private void handleDeleteRequest(HttpExchange exchange, String path) throws IOException {
+        if (path.startsWith(PATH_EPICS + "/")) {
+            handleDeleteEpicById(exchange, path);
+        } else if (path.equals(PATH_EPICS)) {
+            handleDeleteAllEpics(exchange);
+        } else {
+            sendNotFound(exchange);
         }
     }
 
     private void handleGetAllEpics(HttpExchange exchange) throws IOException {
-        try {
-            List<Epic> epics = taskManager.getEpics();
-            System.out.println("Found " + epics.size() + " epics");
-            String json = gson.toJson(epics);
-            System.out.println("JSON response: " + json);
-            sendSuccess(exchange, json);
-        } catch (Exception e) {
-            System.err.println("Error in handleGetAllEpics: " + e.getMessage());
-            e.printStackTrace();
-            sendInternalServerError(exchange);
-        }
+        List<Epic> epics = taskManager.getEpics();
+        sendSuccess(exchange, gson.toJson(epics));
     }
 
     private void handleGetEpicById(HttpExchange exchange, String path) throws IOException {
-        try {
-            String idStr = path.substring(7);
-            int id = Integer.parseInt(idStr);
-            Epic epic = taskManager.findEpicById(id);
-            if (epic != null) {
-                sendSuccess(exchange, gson.toJson(epic));
-            } else {
-                sendNotFound(exchange);
-            }
-        } catch (NumberFormatException e) {
-            sendBadRequest(exchange, "Invalid epic ID format");
-        } catch (Exception e) {
-            sendInternalServerError(exchange);
+        String idStr = path.substring(PATH_EPICS.length() + 1);
+        int id = parsePathId(idStr);
+
+        if (id == -1) {
+            sendBadRequest(exchange);
+            return;
+        }
+
+        Epic epic = taskManager.findEpicById(id);
+        if (epic != null) {
+            sendSuccess(exchange, gson.toJson(epic));
+        } else {
+            sendNotFound(exchange);
         }
     }
 
-    private void sendBadRequest(HttpExchange exchange, String invalidEpicIdFormat) {
-    }
-
     private void handleGetEpicSubTasks(HttpExchange exchange, String path) throws IOException {
-        try {
-            // Из пути "/epics/123/subtasks" извлекаем "123"
-            String idStr = path.substring(7, path.length() - 9);
-            int epicId = Integer.parseInt(idStr);
-            Epic epic = taskManager.findEpicById(epicId);
-            if (epic != null) {
-                List<SubTask> subTasks = taskManager.getSubTasksByEpicId(epicId);
-                sendSuccess(exchange, gson.toJson(subTasks));
-            } else {
-                sendNotFound(exchange);
-            }
-        } catch (NumberFormatException e) {
-            sendBadRequest(exchange, "Invalid epic ID format");
-        } catch (Exception e) {
-            sendInternalServerError(exchange);
+        String idStr = path.substring(PATH_EPICS.length() + 1, path.length() - PATH_SUBTASKS.length());
+        int epicId = parsePathId(idStr);
+
+        if (epicId == -1) {
+            sendBadRequest(exchange);
+            return;
+        }
+
+        Epic epic = taskManager.findEpicById(epicId);
+        if (epic != null) {
+            List<SubTask> subTasks = taskManager.getSubTasksByEpicId(epicId);
+            sendSuccess(exchange, gson.toJson(subTasks));
+        } else {
+            sendNotFound(exchange);
         }
     }
 
@@ -136,23 +127,25 @@ public class EpicsHandler extends BaseHttpHandler {
                 sendSuccess(exchange, gson.toJson(epic));
             }
         } catch (JsonSyntaxException e) {
-            sendBadRequest(exchange, "Invalid JSON format");
+            sendBadRequest(exchange);
         }
     }
 
     private void handleDeleteEpicById(HttpExchange exchange, String path) throws IOException {
-        try {
-            String idStr = path.substring(7);
-            int id = Integer.parseInt(idStr);
-            Epic epic = taskManager.findEpicById(id);
-            if (epic != null) {
-                taskManager.deleteEpic(id);
-                sendSuccess(exchange, "Epic deleted");
-            } else {
-                sendNotFound(exchange);
-            }
-        } catch (NumberFormatException e) {
-            sendBadRequest(exchange, "Invalid epic ID format");
+        String idStr = path.substring(PATH_EPICS.length() + 1);
+        int id = parsePathId(idStr);
+
+        if (id == -1) {
+            sendBadRequest(exchange);
+            return;
+        }
+
+        Epic epic = taskManager.findEpicById(id);
+        if (epic != null) {
+            taskManager.deleteEpic(id);
+            sendSuccess(exchange, "Epic deleted");
+        } else {
+            sendNotFound(exchange);
         }
     }
 

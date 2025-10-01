@@ -8,24 +8,20 @@ import java.io.IOException;
 import java.util.List;
 
 public class HistoryHandler extends BaseHttpHandler {
+    private static final String METHOD_GET = "GET";
 
     public HistoryHandler(TaskManager taskManager) {
         super(taskManager);
     }
 
     @Override
-    public void handle(HttpExchange h) throws IOException {
-        try {
-            String method = h.getRequestMethod();
+    public void handle(HttpExchange exchange) throws IOException {
+        String method = exchange.getRequestMethod();
 
-            if ("GET".equals(method)) {
-                List<Task> history = taskManager.getHistory();
-                sendSuccess(h, gson.toJson(history));
-            } else {
-                sendNotFound(h);
-            }
-        } catch (Exception e) {
-            sendInternalServerError(h);
+        if (METHOD_GET.equals(method)) {
+            handleGetHistory(exchange);
+        } else {
+            sendNotFound(exchange);
         }
     }
 

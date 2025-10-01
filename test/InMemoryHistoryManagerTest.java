@@ -9,104 +9,120 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InMemoryHistoryManagerTest {
+    private static final String TASK_NAME_1 = "Задача 1";
+    private static final String TASK_DESCRIPTION_1 = "Описание задачи 1";
+    private static final String TASK_NAME_2 = "Задача 2";
+    private static final String TASK_DESCRIPTION_2 = "Описание задачи 2";
+    private static final String TASK_NAME_3 = "Задача 3";
+    private static final String TASK_DESCRIPTION_3 = "Описание задачи 3";
+    private static final int TASK_ID_1 = 1;
+    private static final int TASK_ID_2 = 2;
+    private static final int TASK_ID_3 = 3;
+    private static final int NON_EXISTENT_TASK_ID = 10;
+    private static final int EXPECTED_HISTORY_SIZE_1 = 1;
+    private static final int EXPECTED_HISTORY_SIZE_2 = 2;
+    private static final int EXPECTED_HISTORY_SIZE_3 = 3;
+    private static final int LAST_ELEMENT_INDEX_OFFSET = 1;
 
     @Test
     public void savingThePreviousIssueVersion() {
+        // Given
         InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+        Task task = new Task(TASK_ID_1, TASK_NAME_1, TASK_DESCRIPTION_1);
 
-        Task task = new Task(1, "Задача 1", "Описание задачи 1"); // Создание задачи
+        // When
+        historyManager.add(task);
 
-        historyManager.add(task); // Добавляем задачу в историю
-
-        List<Task> history = historyManager.getHistory(); //проверка предыдущей версии
+        // Then
+        List<Task> history = historyManager.getHistory();
         assertTrue(!history.isEmpty(), "История должна содержать хотя бы одну задачу");
-        assertEquals(task, history.get(history.size() - 1), "Добавленная задача последняя в истории");
+        assertEquals(task, history.get(history.size() - LAST_ELEMENT_INDEX_OFFSET), "Добавленная задача последняя в истории");
     }
 
     @Test
     public void testOfAddingDeleteOperations() {
+        // Given
         InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-
-        Task task1 = new Task(1, "Задача 1", "Описание задачи 1");
-        Task task2 = new Task(2, "Задача 2", "Описание задачи 2");
-        Task task3 = new Task(3, "Задача 3", "Описание задачи 3");
+        Task task1 = new Task(TASK_ID_1, TASK_NAME_1, TASK_DESCRIPTION_1);
+        Task task2 = new Task(TASK_ID_2, TASK_NAME_2, TASK_DESCRIPTION_2);
+        Task task3 = new Task(TASK_ID_3, TASK_NAME_3, TASK_DESCRIPTION_3);
 
         historyManager.add(task1);
         historyManager.add(task2);
         historyManager.add(task3);
 
+        // When
         List<Task> history = historyManager.getHistory();
-        assertEquals(3, history.size());
+        assertEquals(EXPECTED_HISTORY_SIZE_3, history.size());
         assertEquals(task1, history.get(0));
         assertEquals(task2, history.get(1));
         assertEquals(task3, history.get(2));
 
+        // When
         int taskId = task2.getId();
-
         historyManager.remove(taskId);
 
+        // Then
         history = historyManager.getHistory();
-        assertEquals(2, history.size());
+        assertEquals(EXPECTED_HISTORY_SIZE_2, history.size());
         assertEquals(task1, history.get(0));
         assertEquals(task3, history.get(1));
 
-        historyManager.remove(10);
+        // When
+        historyManager.remove(NON_EXISTENT_TASK_ID);
     }
 
     @Test
     public void testAddToEmptyHistory() {
-        // Создаем экземпляр HistoryManager
+        // Given
         HistoryManager historyManager = new InMemoryHistoryManager();
+        Task task = new Task(TASK_ID_1, TASK_NAME_1, TASK_DESCRIPTION_1);
 
-        // Добавляем задачу в пустую историю
-        Task task = new Task(1, "Задача 1", "Описание задачи 1");
+        // When
         historyManager.add(task);
 
-        // Проверяем, что задача была добавлена
+        // Then
         List<Task> history = historyManager.getHistory();
-        assertEquals(1, history.size());
+        assertEquals(EXPECTED_HISTORY_SIZE_1, history.size());
         assertTrue(history.contains(task));
     }
 
     @Test
     public void testDuplicateAdd() {
-        // Создаем экземпляр HistoryManager
+        // Given
         HistoryManager historyManager = new InMemoryHistoryManager();
+        Task task1 = new Task(TASK_ID_1, TASK_NAME_1, TASK_DESCRIPTION_1);
+        Task task2 = new Task(TASK_ID_1, TASK_NAME_1, TASK_DESCRIPTION_1);
 
-        // Добавляем дублирующуюся задачу
-        Task task1 = new Task(1, "Задача 1", "Описание задачи 1");
-        Task task2 = new Task(1, "Задача 1", "Описание задачи 1"); // Дублирующаяся задача
-
+        // When
         historyManager.add(task1);
         historyManager.add(task2);
 
-        // Проверяем, что дублирующаяся задача была добавлена как отдельная запись
+        // Then
         List<Task> history = historyManager.getHistory();
-        assertEquals(2, history.size());
+        assertEquals(EXPECTED_HISTORY_SIZE_2, history.size());
         assertTrue(history.contains(task1));
         assertTrue(history.contains(task2));
     }
 
     @Test
     public void testRemoveFromHistory() {
-        // Создаем экземпляр HistoryManager
+        // Given
         HistoryManager historyManager = new InMemoryHistoryManager();
-
-        // Добавляем задачи в историю
-        Task task1 = new Task(1, "Задача 1", "Описание задачи 1");
-        Task task2 = new Task(2, "Задача 2", "Описание задачи 2");
-        Task task3 = new Task(3, "Задача 3", "Описание задачи 3");
+        Task task1 = new Task(TASK_ID_1, TASK_NAME_1, TASK_DESCRIPTION_1);
+        Task task2 = new Task(TASK_ID_2, TASK_NAME_2, TASK_DESCRIPTION_2);
+        Task task3 = new Task(TASK_ID_3, TASK_NAME_3, TASK_DESCRIPTION_3);
 
         historyManager.add(task1);
         historyManager.add(task2);
         historyManager.add(task3);
 
-        // Удаляем задачу из середины истории
+        // When
         historyManager.remove(task2.getId());
 
-        // Проверяем, что задача была удалена
+        // Then
         List<Task> history = historyManager.getHistory();
-        assertEquals(2, history.size());
+        assertEquals(EXPECTED_HISTORY_SIZE_2, history.size());
         assertTrue(history.contains(task1));
         assertTrue(history.contains(task3));
     }

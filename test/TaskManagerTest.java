@@ -14,7 +14,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @BeforeEach
     public void setUp() {
-        // Инициализация taskManager для конкретной реализации
+
     }
 
     @Test

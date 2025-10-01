@@ -14,93 +14,121 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class InMemoryTaskManagerTest {
+    private static final String SUBTASK_NAME_1 = "Подзадача 1";
+    private static final String SUBTASK_DESCRIPTION_1 = "Описание подзадачи 1";
+    private static final String EPIC_NAME_1 = "Эпик 1";
+    private static final String EPIC_DESCRIPTION_1 = "Описание эпика 1";
+    private static final String TASK_NAME_1 = "Задача 1";
+    private static final String TASK_DESCRIPTION_1 = "Описание задачи 1";
+    private static final String TASK_NEW_NAME = "Новое название";
+    private static final String TASK_NEW_DESCRIPTION = "Новое описание";
+    private static final String TASK_GENERATED_ID_PREFIX = "ID сгенерирован";
+    private static final String TASK_DESCRIPTION_PREFIX = "Описание задачи ";
+    private static final int TASK_ID_1 = 1;
+    private static final int TASK_ID_2 = 2;
+    private static final int TASK_ID_3 = 3;
+    private static final int EPIC_ID_1 = 1;
+    private static final int SUBTASK_ID_1 = 1;
+    private static final int SUBTASK_ID_2 = 2;
+    private static final int TASKS_COUNT_10 = 10;
+    private static final int EXPECTED_EMPTY_SIZE = 0;
+    private static final int HOURS_DURATION_1 = 1;
 
     @Test
     public void testWithoutStoringOldId() {
+        // Given
         InMemoryTaskManager manager = new InMemoryTaskManager();
-        SubTask subTask = new SubTask(1, "Подзадача 1", "Описание подзадачи 1", 1);
-        manager.addSubTask(subTask);
+        SubTask subTask = new SubTask(SUBTASK_ID_1, SUBTASK_NAME_1, SUBTASK_DESCRIPTION_1, TASK_ID_1);
 
+        // When
+        manager.addSubTask(subTask);
         assertTrue(manager.getSubTasks().contains(subTask));
 
         manager.deleteSubTask();
 
-        assertEquals(0, manager.getSubTasks().size()); // Проверка после удаления
+        // Then
+        assertEquals(EXPECTED_EMPTY_SIZE, manager.getSubTasks().size());
     }
 
     @Test
     public void testWithoutIrrelevantSubtasksId() {
+        // Given
         InMemoryTaskManager manager = new InMemoryTaskManager();
-        Epic epic = new Epic(1, "Эпик 1", "Описание эпика 1", LocalDateTime.now(), Duration.ofHours(1));
-        SubTask subTask = new SubTask(2, "Подзадача 1", "Описание подзадачи 1", 1);
+        Epic epic = new Epic(EPIC_ID_1, EPIC_NAME_1, EPIC_DESCRIPTION_1, LocalDateTime.now(), Duration.ofHours(HOURS_DURATION_1));
+        SubTask subTask = new SubTask(SUBTASK_ID_2, SUBTASK_NAME_1, SUBTASK_DESCRIPTION_1, EPIC_ID_1);
 
         manager.addEpic(epic);
         manager.addSubTask(subTask);
 
+        // When
         List<SubTask> subTasksBeforeDeletion = manager.getSubTasksByEpicId(epic.getId());
-        assertTrue(subTasksBeforeDeletion.contains(subTask)); // добавлена ли подзадача в эпик
+        assertTrue(subTasksBeforeDeletion.contains(subTask));
 
+        // When
         manager.deleteSubTask();
 
+        // Then
         List<SubTask> subTasksAfterDeletion = manager.getSubTasksByEpicId(epic.getId());
-        assertFalse(subTasksAfterDeletion.contains(subTask)); // проверка удаленной подзадачи из эпика
+        assertFalse(subTasksAfterDeletion.contains(subTask));
     }
 
     @Test
     public void testChangingTaskFields() {
+        // Given
         InMemoryTaskManager manager = new InMemoryTaskManager();
-        Task task = new Task(1, "Задача 1", "Описание задачи 1");
+        Task task = new Task(TASK_ID_1, TASK_NAME_1, TASK_DESCRIPTION_1);
 
         manager.addTask(task);
 
-        assertEquals("Задача 1", task.getName());
-        assertEquals("Описание задачи 1", task.getDescription());
+        assertEquals(TASK_NAME_1, task.getName());
+        assertEquals(TASK_DESCRIPTION_1, task.getDescription());
 
-        task.setName("Новое название"); // изменение полей
-        task.setDescription("Новое описание");
+        // When
+        task.setName(TASK_NEW_NAME);
+        task.setDescription(TASK_NEW_DESCRIPTION);
 
+        // Then
         Task updatedTask = manager.findTaskById(task.getId());
         assertNotNull(updatedTask);
-        assertEquals("Новое название", updatedTask.getName());
-        assertEquals("Новое описание", updatedTask.getDescription());
+        assertEquals(TASK_NEW_NAME, updatedTask.getName());
+        assertEquals(TASK_NEW_DESCRIPTION, updatedTask.getDescription());
     }
 
     @Test
     public void addAndFindTasks() {
-        InMemoryTaskManager manager;
-        manager = new InMemoryTaskManager() {
+        // Given
+        InMemoryTaskManager manager = new InMemoryTaskManager();
 
-        };
+        Task task = new Task(TASK_ID_1, TASK_NAME_1, TASK_DESCRIPTION_1, LocalDateTime.now(), Duration.ofHours(HOURS_DURATION_1));
+        SubTask subTask = new SubTask(TASK_ID_2, SUBTASK_NAME_1, SUBTASK_DESCRIPTION_1, TASK_ID_1);
+        Epic epic = new Epic(TASK_ID_3, EPIC_NAME_1, EPIC_DESCRIPTION_1, LocalDateTime.now(), Duration.ofHours(HOURS_DURATION_1));
 
-        Task task = new Task(1, "Задача 1", "Описание задачи 1", LocalDateTime.now(), Duration.ofHours(1));
-        SubTask subTask = new SubTask(2, "Подзадача 1", "Описание подзадачи 1", 1);
-        Epic epic = new Epic(3, "Эпик 1", "Описание эпика 1", LocalDateTime.now(), Duration.ofHours(1));
-
+        // When
         manager.addTask(task);
-        assertNotNull(manager.findTaskById(1), "Задача должна быть найдена");
-
         manager.addSubTask(subTask);
-        assertNotNull(manager.findSubTaskById(2), "Подзадача должна быть найдена");
-
         manager.addEpic(epic);
-        assertNotNull(manager.findEpicById(3), "Эпик должен быть найден");
+
+        // Then
+        assertNotNull(manager.findTaskById(TASK_ID_1), "Задача должна быть найдена");
+        assertNotNull(manager.findSubTaskById(TASK_ID_2), "Подзадача должна быть найдена");
+        assertNotNull(manager.findEpicById(TASK_ID_3), "Эпик должен быть найден");
     }
 
     @Test
     public void taskDoNotConflict() {
-        InMemoryTaskManager manager = new InMemoryTaskManager() {
-
-        };
-
-        Task taskWithGivenId = new Task(1, "ID задан", "Описание задачи");
+        // Given
+        InMemoryTaskManager manager = new InMemoryTaskManager();
+        Task taskWithGivenId = new Task(TASK_ID_1, "ID задан", "Описание задачи");
         manager.addTask(taskWithGivenId);
 
-        for (int i = 0; i < 10; i++) {
-            Task task = new Task(i, "ID сгенерирован" + i, "Описание задачи " + i);
+        // When
+        for (int i = 0; i < TASKS_COUNT_10; i++) {
+            Task task = new Task(i, TASK_GENERATED_ID_PREFIX + i, TASK_DESCRIPTION_PREFIX + i);
             manager.addTask(task);
         }
 
-        List<Task> tasks = manager.getTasks(); // проверка на уникальность id
+        // Then
+        List<Task> tasks = manager.getTasks();
         ArrayList<Integer> uniqueIds = new ArrayList<>();
 
         for (Task task : tasks) {
@@ -123,19 +151,19 @@ public class InMemoryTaskManagerTest {
 
     @Test
     public void taskFieldsDoNotChanged() {
-
+        // Given
         InMemoryTaskManager manager = new InMemoryTaskManager();
-
-        Task originalTask = new Task(1, "Задача 1", "Описание задачи 1");
+        Task originalTask = new Task(TASK_ID_1, TASK_NAME_1, TASK_DESCRIPTION_1);
 
         int originalId = originalTask.getId();
         String originalName = originalTask.getName();
         String originalDescription = originalTask.getDescription();
 
+        // When
         manager.addTask(originalTask);
 
+        // Then
         Task retrievedTask = manager.findTaskById(originalId);
-
         assertEquals(retrievedTask.getId(), originalId, "ID задачи не изменяется");
         assertEquals(retrievedTask.getName(), originalName, "Название задачи не изменяется");
         assertEquals(retrievedTask.getDescription(), originalDescription, "Описание задачи не изменяется");

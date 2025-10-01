@@ -10,10 +10,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public interface TaskManager {
-    /* реализовала п.1
-     * список методов, которые д.б. у любого объекта-менеджера. Для этого удалила всё тело методов и оставила
-     * только сигнатуры методов
-     */
 
     // Task
     int addTask(Task task);
@@ -37,13 +33,13 @@ public interface TaskManager {
 
     void deleteSubTask(int id);
 
-//    void deleteAllSubTasks();
-
     void deleteAllSubtasks();
 
     List<SubTask> getSubTasks();
 
     SubTask findSubTaskById(int id);
+
+    void updateEpicStatus(Epic epic);
 
     // Epic
     int addEpic(Epic epic);
@@ -58,17 +54,13 @@ public interface TaskManager {
 
     List<Epic> getEpics();
 
-    void updateEpicStatus(Epic epic);
-
     List<SubTask> getSubTasksByEpicId(int epicId);
 
-    // сигнатура метода, который будет возвращать последние 10 просмотренных задач,
-    // а его реализация будет в классе InMemoryTaskManager
     List<Task> getHistory();
 
     Set<Task> tasks = new TreeSet<>((t1, t2) -> {
         if (t1.getStartTime() == null || t2.getStartTime() == null) {
-            return 0; // Не учитываем задачу в сортировке, если время начала не задано
+            return 0;
         }
         return t1.getStartTime().compareTo(t2.getStartTime());
     });
@@ -82,14 +74,13 @@ public interface TaskManager {
                 task2.getEndTime().isBefore(task1.getStartTime()));
     }
 
-    // Метод для проверки пересечения новой задачи с существующими
     default boolean hasOverIntersectionTasks(Task newTask) {
         for (Task existingTask : tasks) {
             if (isOverIntersection(newTask, existingTask)) {
-                return true; // Пересечение найдено
+                return true;
             }
         }
-        return false; // Пересечений нет
+        return false;
     }
 
     Epic getEpic(Integer integer);
