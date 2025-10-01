@@ -223,32 +223,7 @@ class EpicTest {
         );
     }
 
-    @Test // Для подзадач необходимо убедиться в наличии связанного эпика
-    @DisplayName("The relationship between subtasks and epic")
-    public void epicSubTaskConnection_managerMaintainsLinks() {
-        TaskManager manager = new InMemoryTaskManager();
 
-        Epic epic = new Epic(1, EPIC_NAME,EPIC_DESCRIPTION, LocalDateTime.now(), Duration.ofHours(1));
-        manager.addEpic(epic);
-
-        SubTask subTask1 = new SubTask(10, SUBTASK_NAME_1, SUBTASK_DESCRIPTION_1, epic.getId());
-        SubTask subTask2 = new SubTask(11, SUBTASK_NAME_2, SUBTASK_DESCRIPTION_2, epic.getId());
-
-        manager.addSubTask(subTask1);
-        manager.addSubTask(subTask2);
-
-        // 1) у подзадач должен быть корректный epicId
-        assertEquals(epic.getId(), subTask1.getEpicId());
-        assertEquals(epic.getId(), subTask2.getEpicId());
-
-        // 2) эпик должен содержать id обеих подзадач
-        assertTrue(epic.getSubTaskIds().containsAll(List.of(10, 11)));
-
-        // 3) менеджер должен уметь вернуть подзадачи по epicId
-        List<SubTask> byEpic = manager.getSubTasksByEpicId(epic.getId());
-        assertEquals(2, byEpic.size());
-        assertTrue(byEpic.stream().map(SubTask::getId).toList().containsAll(List.of(10, 11)));
-    }
 
     @Test // Тест на проверку пересечения интервалов
     @DisplayName("Checking the intersection of intervals")

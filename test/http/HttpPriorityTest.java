@@ -32,7 +32,7 @@ class HttpPriorityTest extends HttpTasksTest {
         createTask(gson.toJson(task2));
 
         HttpRequest priorityRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/prioritized"))
+                .uri(URI.create(BASE_URL + "/prioritized"))
                 .GET()
                 .build();
 
@@ -51,7 +51,7 @@ class HttpPriorityTest extends HttpTasksTest {
     @DisplayName("Получение пустого списка из приоритетных задач")
     void testGet_Empty_Prioritized_Tasks() throws IOException, InterruptedException {
         HttpRequest priorityRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/prioritized"))
+                .uri(URI.create(BASE_URL + "/prioritized"))
                 .GET()
                 .build();
 
@@ -73,7 +73,7 @@ class HttpPriorityTest extends HttpTasksTest {
         createTask(gson.toJson(taskWithoutTime));
 
         HttpRequest priorityRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/prioritized"))
+                .uri(URI.create(BASE_URL + "/prioritized"))
                 .GET()
                 .build();
 
@@ -89,7 +89,7 @@ class HttpPriorityTest extends HttpTasksTest {
 
     private HttpResponse<String> createTask(String taskJson) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/tasks"))
+                .uri(URI.create(BASE_URL + "/prioritized"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(taskJson))
                 .build();

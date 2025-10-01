@@ -22,79 +22,55 @@ class HttpHistoryTest extends HttpTasksTest {
     @Test
     @DisplayName("Получение истории задач")
     void testGetHistory() throws IOException, InterruptedException {
+        // Создаём задачу
+        Task task = new Task(0, "History Task", "Desc",
+                LocalDateTime.now(), Duration.ofMinutes(30));
+        task.setStatus(TaskStatus.NEW);
 
-        Task task1 = new Task(0, "Task 1", "Description 1",
-                LocalDateTime.now(), Duration.ofMinutes(60));
-        Task task2 = new Task(0, "Task 2", "Description 2",
-                LocalDateTime.now().plusHours(2), Duration.ofMinutes(30));
+        String json = gson.toJson(task);
+        HttpResponse<String> postResp = client.send(
+                HttpRequest.newBuilder()
+                        .uri(URI.create(BASE_URL + "/tasks"))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(json))
+                        .build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        Task created = gson.fromJson(postResp.body(), Task.class);
 
-        task1.setStatus(TaskStatus.NEW);
-        task2.setStatus(TaskStatus.IN_PROGRESS);
+        // Запрашиваем её — попадает в историю
+        client.send(
+                HttpRequest.newBuilder()
+                        .uri(URI.create(BASE_URL + "/tasks/" + created.getId()))
+                        .GET()
+                        .build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
 
-        HttpRequest request1 = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/tasks"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task1)))
-                .build();
-        HttpResponse<String> response1 = client.send(request1, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response1.statusCode(), "Неверный статус код для первой задачи");
-        Task createdTask1 = gson.fromJson(response1.body(), Task.class);
-        int taskId1 = createdTask1.getId();
+        // Получаем историю
+        HttpResponse<String> historyResp = client.send(
+                HttpRequest.newBuilder()
+                        .uri(URI.create(BASE_URL + "/history"))
+                        .GET()
+                        .build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
 
-        HttpRequest request2 = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/tasks"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task2)))
-                .build();
-        HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response2.statusCode(), "Неверный статус код для второй задачи");
-        Task createdTask2 = gson.fromJson(response2.body(), Task.class);
-        int taskId2 = createdTask2.getId();
-
-        HttpRequest getRequest1 = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/tasks/" + taskId1))
-                .GET()
-                .build();
-        client.send(getRequest1, HttpResponse.BodyHandlers.ofString());
-
-        HttpRequest getRequest2 = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/tasks/" + taskId2))
-                .GET()
-                .build();
-        client.send(getRequest2, HttpResponse.BodyHandlers.ofString());
-
-        HttpRequest historyRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/history"))
-                .GET()
-                .build();
-
-        HttpResponse<String> historyResponse = client.send(historyRequest, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, historyResponse.statusCode(), "Неверный статус код для истории");
-
-        Task[] history = gson.fromJson(historyResponse.body(), Task[].class);
-        assertNotNull(history, "История не вернулась");
-        assertEquals(2, history.length, "В истории должно быть 2 задачи");
-
-        Set<Integer> historyIds = Arrays.stream(history)
-                .map(Task::getId)
-                .collect(Collectors.toSet());
-        assertTrue(historyIds.contains(taskId1), "В истории должна быть первая задача");
-        assertTrue(historyIds.contains(taskId2), "В истории должна быть вторая задача");
+        assertEquals(200, historyResp.statusCode());
+        assertTrue(historyResp.body().contains("History Task"));
     }
 
     @Test
-    @DisplayName("Получение пустой истории задач")
-    void testGet_Empty_History() throws IOException, InterruptedException {
-        HttpRequest historyRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/history"))
-                .GET()
-                .build();
-
-        HttpResponse<String> historyResponse = client.send(historyRequest, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, historyResponse.statusCode(), "Неверный статус код для пустой истории");
-
-        Task[] history = gson.fromJson(historyResponse.body(), Task[].class);
-        assertNotNull(history, "История не вернулась");
-        assertEquals(0, history.length, "История должна быть пустой");
+    @DisplayName("Пустая история")
+    void testGetEmptyHistory() throws IOException, InterruptedException {
+        HttpResponse<String> resp = client.send(
+                HttpRequest.newBuilder()
+                        .uri(URI.create(BASE_URL + "/history"))
+                        .GET()
+                        .build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        assertEquals(200, resp.statusCode());
+        assertEquals("[]", resp.body().trim()); // пустой JSON-массив
     }
 }

@@ -8,6 +8,7 @@ import task.TaskStatus;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     /*
@@ -276,7 +277,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Set<Task> getPrioritizedTasks() {
-        return Collections.unmodifiableSet(new LinkedHashSet<>(prioritizedTask));
+        return prioritizedTask.stream()
+                .filter(task -> task.getStartTime() != null)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override

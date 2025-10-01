@@ -14,18 +14,25 @@ public class HttpTaskServer {
     private HttpServer server; // убрала final
     private TaskManager taskManager;
     private static final String SERVER_ADDRESS = "127.0.0.1";
-    private static final int PORT = 8080;
+    private static final int PORT = 0;
     private static final Gson gson = new Gson();
+
+    private final int actualPort;
 
     public HttpTaskServer() throws IOException {
         this.taskManager = Managers.getDefault();
         this.server = HttpServer.create(new InetSocketAddress(SERVER_ADDRESS, PORT), 1);
+        this.actualPort = this.server.getAddress().getPort(); // - запоминаем реальный порт
 
         server.createContext("/tasks", new TasksHandler(taskManager));
         server.createContext("/subtasks", new SubtasksHandler(taskManager));
         server.createContext("/epics", new EpicsHandler(taskManager));
         server.createContext("/history", new HistoryHandler(taskManager));
         server.createContext("/prioritized", new PrioritizedHandler(taskManager));
+    }
+
+    public int getPort() {
+        return actualPort;
     }
 
     public void start() {

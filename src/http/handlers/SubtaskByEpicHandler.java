@@ -47,11 +47,6 @@ public class SubtaskByEpicHandler extends BaseHttpHandler {
         String[] pathParts = path.split("/");
         int epicId = parsePathId(pathParts[4]);
 
-        /*if (epicId == -1) {
-            sendBadRequest(exchange);
-            return;
-        }*/
-
         Epic epic = taskManager.getEpic(epicId);
         if (epic == null) {
             sendNotFound(exchange);

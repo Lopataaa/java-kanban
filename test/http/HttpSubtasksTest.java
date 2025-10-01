@@ -23,7 +23,7 @@ class HttpSubtasksTest extends HttpTasksTest {
         String epicJson = gson.toJson(epic);
 
         HttpRequest epicRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/epics"))
+                .uri(URI.create(BASE_URL + "/epics"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(epicJson))
                 .build();
@@ -48,7 +48,7 @@ class HttpSubtasksTest extends HttpTasksTest {
         String subtaskJson = gson.toJson(subtask);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/subtasks"))
+                .uri(URI.create(BASE_URL + "/subtasks"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(subtaskJson))
                 .build();
@@ -83,7 +83,7 @@ class HttpSubtasksTest extends HttpTasksTest {
 
         // Используем реальный ID для запроса
         HttpRequest getRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/subtasks/" + subtaskId))
+                .uri(URI.create(BASE_URL + "/subtasks/" + subtaskId))
                 .GET()
                 .build();
 
@@ -99,7 +99,7 @@ class HttpSubtasksTest extends HttpTasksTest {
     @DisplayName("Получение кода 404 при запросе несуществующей подзадачи")
     void testGet_SubtaskById_NotFound() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/subtasks/999"))
+                .uri(URI.create(BASE_URL + "/subtasks/999"))
                 .GET()
                 .build();
 
@@ -123,7 +123,7 @@ class HttpSubtasksTest extends HttpTasksTest {
         int subtaskId = createdSubtask.getId();
 
         HttpRequest deleteRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/subtasks/" + subtaskId))
+                .uri(URI.create(BASE_URL + "/subtasks/" + subtaskId))
                 .DELETE()
                 .build();
 
@@ -163,7 +163,7 @@ class HttpSubtasksTest extends HttpTasksTest {
         createSubtask(gson.toJson(subtask));
 
         HttpRequest deleteRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/subtasks"))
+                .uri(URI.create(BASE_URL + "/subtasks"))
                 .DELETE()
                 .build();
 
@@ -176,7 +176,7 @@ class HttpSubtasksTest extends HttpTasksTest {
 
     private HttpResponse<String> createSubtask(String subtaskJson) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/subtasks"))
+                .uri(URI.create(BASE_URL + "/subtasks"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(subtaskJson))
                 .build();
@@ -185,7 +185,7 @@ class HttpSubtasksTest extends HttpTasksTest {
 
     private SubTask[] getAllSubtasks() throws IOException, InterruptedException {
         HttpRequest getRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/subtasks"))
+                .uri(URI.create(BASE_URL + "/subtasks"))
                 .GET()
                 .build();
         HttpResponse<String> response = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
