@@ -1,11 +1,14 @@
 package manager;
 
 import task.Task;
+
 import java.util.List;
 
 public interface HistoryManager {
 
-    void addToHistory(Task task);
+    void add(Task task);
 
-    List<Task> getHistory(); // должен возвращать просмотренные задачи в список
+    void remove(int id);
+
+    List<Task> getHistory();
 }

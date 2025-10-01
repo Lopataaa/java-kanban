@@ -1,26 +1,85 @@
 package manager;
 
 import task.Task;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+
+import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private List<Task> history = new LinkedList<>();
+    final Map<Integer, Node> nodeMap = new HashMap<>();
+    private Node head = null;
+    private Node tail;
 
     @Override
-    public List<Task> getHistory() { // реализация метода, который возвращает последние 10 просмотренных задач. Обяъявлен в TaskManager
-        return new ArrayList<>(history);
+    public List<Task> getHistory() {
+        return getTasks();
     }
 
+    @Override
+    public void add(Task task) {
+        linkLast(task);
+        nodeMap.put(task.getId(), tail);
+    }
 
-    // Обновление истории просмотров
-    public void addToHistory(Task task) { //метод добавляет задачу в список истории просмотров
-        // Если размер списка больше 10, по ТЗ необходимо удалить самый старый элемент — тот, который находится в начале списка
-        if (history.size() > 10) {
-            history.remove(0);
+    @Override
+    public void remove(int id) {
+        Node nodeToRemove = nodeMap.get(id);
+        removeNode(nodeToRemove);
+        nodeMap.remove(id);
+    }
+
+    class Node {
+        Task task;
+        Node prev;
+        Node next;
+
+        public Node(Task task) {
+            this.task = task;
+            this.prev = null;
+            this.next = null;
         }
-        history.add(task); //просмотренные задачи должны добавляться в конец
     }
 
+    private void linkLast(Task task) {
+        Node newNode = new Node(task);
+        if (tail == null) {
+            tail = newNode;
+            head = newNode;
+        } else {
+            tail.next = newNode;
+            newNode.prev = tail;
+            tail = newNode;
+        }
+        nodeMap.put(task.getId(), newNode);
+    }
+
+    private List<Task> getTasks() {
+        List<Task> tasks = new ArrayList<>();
+
+        Node currentNode = head;
+        while (currentNode != null) {
+            tasks.add(currentNode.task);
+            currentNode = currentNode.next;
+        }
+        return tasks;
+    }
+
+    private void removeNode(Node nodeToRemove) {
+        if (nodeToRemove == null) {
+            return;
+        }
+
+        if (nodeToRemove.prev != null) {
+            nodeToRemove.prev.next = nodeToRemove.next;
+        } else {
+            if (head == nodeToRemove.next) {
+                head = nodeToRemove.next;
+            }
+        }
+
+        if (nodeToRemove.next != null) {
+            nodeToRemove.next.prev = nodeToRemove.prev;
+        } else {
+            tail = nodeToRemove.prev;
+        }
+    }
 }
